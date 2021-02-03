@@ -1,0 +1,1 @@
+add_project(merge_sort_multithreading)
