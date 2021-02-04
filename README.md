@@ -7,12 +7,10 @@ A repository for COEN 346's laboratory projects
 - Yevhen Haydar 
 
 ## Building
-- Create a directory called **build/** on the repository
-- `cd` into it
-- While inside the directory use the following commands to build the project
-- `cmake ..` *This only has to be called once, unless a new project is added, in that case you'll have to use this again.*
-- `make`
+- At the root of the repo, run the build script using the command: `./build.sh`
 
+The script will create a **build** directory and it will call cmake followed by make within it. This will result in having all generated project executables located in **build/bin** directory.
+    
 ## Adding a project
 This way we can add new lab projects by just creating a folder in projects and adding a new entry in **projects/CMakeLists.txt**. 
 For example, let's say you'd like to add a project called *test*. Here would be the steps required to do so:
