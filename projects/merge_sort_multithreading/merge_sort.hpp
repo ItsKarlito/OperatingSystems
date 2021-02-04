@@ -30,6 +30,8 @@ private:
 
         //Divide arr into two segments, and sort each
         int m = start + (end - start)/2;
+
+        //DON'T FORGET TO JOIN THIS TWO THREADS NO MATTER WHAT
         sort(arr, start, m);
         sort(arr, m+1, end);
         
@@ -64,8 +66,8 @@ private:
         //into arr_l and arr_r respectively
         int arr_l[size_l] = {0};
         int arr_r[size_r] = {0};
-        memcpy(arr_l, &arr[start_l], size_l*sizeof(int));
-        memcpy(arr_r, &arr[start_r], size_r*sizeof(int));
+        memcpy(arr_l, &arr[start_l], size_l*sizeof(Type));
+        memcpy(arr_r, &arr[start_r], size_r*sizeof(Type));
 
         while(i_l < size_l && i_r < size_r)
         {
