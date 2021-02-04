@@ -7,10 +7,17 @@
 #define FILE_DIR "input.txt"
 #define FILE_ERROR "ERROR: Could not read from file"
 
+//argc = argument count
+//argv = argument verbose
 int main(int argc, char const *argv[])
 {
     // open file, check if successful
-    std::ifstream file(FILE_DIR);
+    std::ifstream file;
+    if(argc == 2)
+        file = std::ifstream(argv[1]);
+    else
+        file = std::ifstream(FILE_DIR);
+    
     if (!file.is_open())
     {
         std::cout << FILE_ERROR << std::endl;
@@ -26,25 +33,13 @@ int main(int argc, char const *argv[])
     }
     file.close();
 
-    // create array from vector
-    int integerArray[integerVector.size()] = {};
-    for (int i = 0; i < integerVector.size(); i++)
-    {
-        integerArray[i] = integerVector[i];
-    }
-    std::vector<int>().swap(integerVector); // free up memory
-
     // call threaded mergesort
     MergeSort<int> sort;
 
-    int size = sizeof(integerArray) / sizeof(int);
+    sort.sort(integerVector.data(), integerVector.size());
 
-    sort.sort(integerArray, size);
-
-    for (int i = 0; i < size; i++)
-    {
-        std::cout << integerArray[i] << ", ";
-    }
+    for (int i = 0; i < integerVector.size(); i++)
+    { std::cout << integerVector[i] << ", "; }
     std::cout << "\n";
 
     return EXIT_SUCCESS;
