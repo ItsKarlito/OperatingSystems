@@ -30,4 +30,3 @@ That's it!, you can now build the project like usual. You'll find an executable 
 ## merge_sort_multithreading
 ### TODO
 - [ ] Add multithreading to merge sort
-- [ ] Add File read support to multithreading
