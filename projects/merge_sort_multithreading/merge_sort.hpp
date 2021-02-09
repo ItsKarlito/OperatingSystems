@@ -2,6 +2,7 @@
 #define MERGE_SORT_H_
 
 #include <iostream>
+#include <fstream>
 #include <utility>
 #include <thread>
 #include <cstring>
@@ -10,17 +11,38 @@ template <typename Type>
 class MergeSort
 {
 public:
-    MergeSort() {}
+    //initialize the output text file
+    MergeSort() : output_file("build/bin/output.txt") {}
 
-    void sort(Type *arr, size_t size)
+    void sort_main(Type *arr, size_t size)
     {
+        //check if output file is open
+        if (!output_file.is_open())
+        {
+            std::cout << "ERROR: Could not open output file" << std::endl;
+            return;
+        }
+
+        //start the parent thread of merge sort
         if (size > 0)
-            sort(arr, 0, size - 1);
+        {
+            std::thread parent (&MergeSort::sort, this, arr, 0, size - 1);
+            std::thread::id parent_id = parent.get_id();
+            output_file << "Thread " << parent_id << " started\n";
+            parent.join();
+            output_file << "Thread " << parent_id << " finished: ";
+            print_array(arr, 0, size-1);
+        }
         else
             throw std::runtime_error("ERROR: Sorting size cannot be lower than 1");
+    
+        //close output file
+        output_file.close();
     }
 
 private:
+    std::ofstream output_file;
+
     //Sort for specific segment of array
     void sort(Type *arr, int start, int end)
     {
@@ -31,13 +53,28 @@ private:
         //Divide arr into two segments, and sort each
         int m = start + (end - start) / 2;
 
-        //DON'T FORGET TO JOIN THIS TWO THREADS NO MATTER WHAT
-        sort(arr, start, m);
-        sort(arr, m + 1, end);
+        //start the first thread which will deal with 1st half of given array
+        //wait for first thread to finish before moving on
+        std::thread first(&MergeSort::sort, this, arr, start, m);
+        std::thread::id first_id = first.get_id();
+        output_file << "Thread " << first_id << " started\n";
+        first.join();
+        output_file << "Thread " << first_id << " finished: ";
+        print_array(arr, start, m);
+
+        //start the second thread which will deal with 2nd half of given array
+        //wait for second thread to finish before moving on
+        std::thread second(&MergeSort::sort, this, arr, m + 1, end);
+        std::thread::id second_id = second.get_id();
+        output_file << "Thread " << second_id << " started\n";
+        second.join();
+        output_file << "Thread " << second_id << " finished: ";
+        print_array(arr, m + 1, end);
 
         //Merge both segments into one. The end result will
         //be on the same location as arr
         merge(arr, start, m, m + 1, end);
+
     }
 
     //Merge two segments into arr
@@ -88,6 +125,17 @@ private:
             arr[i++] = arr_l[i_l++];
         while (i_r < size_r)
             arr[i++] = arr_r[i_r++];
+    }
+
+    //print contents of an array between indeces start and end
+    void print_array(Type* arr, int start, int end)
+    {
+        //iterate between indeces start and end
+        for (int i = start; i <= end; i++)
+        {
+            output_file << arr[i] << ", ";
+        }
+        output_file << "\n";
     }
 };
 

@@ -1,6 +1,7 @@
 #include "merge_sort.hpp"
 
 #include <iostream>
+#include <cstdlib>
 #include <fstream>
 #include <vector>
 
@@ -31,13 +32,7 @@ int main(int argc, char const *argv[])
     //Call threaded mergesort
     MergeSort<int> sort;
 
-    sort.sort(integerVector.data(), integerVector.size());
-
-    for (int i = 0; i < integerVector.size(); i++)
-    {
-        std::cout << integerVector[i] << ", ";
-    }
-    std::cout << "\n";
+    sort.sort_main(integerVector.data(), integerVector.size());
 
     return EXIT_SUCCESS;
 }
