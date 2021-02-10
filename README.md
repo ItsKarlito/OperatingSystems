@@ -29,4 +29,3 @@ That's it!, you can now build the project like usual. You'll find an executable 
 ### TODO
 - [x] Add multithreading to merge sort
 - [x] Add File read support to multithreading
-- [x] Add File read support to multithreading
