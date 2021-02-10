@@ -3,6 +3,8 @@ project(Lab346)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+find_package(Threads REQUIRED)
+
 macro(add_project DIR)
 file(
     GLOB SRCS
@@ -19,10 +21,7 @@ add_executable(
     ${SRCS}
 )
 
-# target_include_directories(${DIR}
-
-#     PRIVATE "${DIR}"
-# )
+target_link_libraries("${DIR}" PRIVATE Threads::Threads)
 endmacro()
 
 add_subdirectory(projects)
