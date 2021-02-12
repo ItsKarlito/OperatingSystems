@@ -23,6 +23,9 @@ For example, let's say you'd like to add a project called *test*. Here would be 
 That's it!, you can now build the project like usual. You'll find an executable called **test** on **build/bin**.
 
 # TODO (General)
+- [x] Add generic build system for projects
+
 ## merge_sort_multithreading
 ### TODO
-- [ ] Add multithreading to merge sort
+- [x] Add multithreading to merge sort
+- [x] Add File read support to multithreading

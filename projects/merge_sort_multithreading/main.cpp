@@ -1,17 +1,24 @@
 #include "merge_sort.hpp"
 
 #include <iostream>
+#include <cstdlib>
 #include <fstream>
 #include <vector>
 
 //argc = argument count
 //argv = argument verbose
+void log(const std::string &msg)
+{
+    std::cout << msg;
+}
+std::ofstream out_file;
 int main(int argc, char const *argv[])
 {
     //Process CLI arguments, open file, check if successful
-    std::ifstream file("input.txt");
+    std::string input_file = "input.txt";
     if (argc == 2)
-        file = std::ifstream(argv[1]);
+        input_file = argv[1];
+    std::ifstream file(input_file);
 
     if (!file.is_open())
     {
@@ -28,16 +35,21 @@ int main(int argc, char const *argv[])
     }
     file.close();
 
+    //Try to get the base path for the input (platform independent)
+    std::string output_path = "output.txt";
+    size_t slash_index = 0;
+    if (
+        ((slash_index = input_file.rfind('/')) != std::string::npos) ||
+        ((slash_index = input_file.rfind('\\')) != std::string::npos))
+        output_path = input_file.substr(0, slash_index + 1) + output_path;
+
+    out_file = std::ofstream(output_path);
+
+    //Callback function
+    MergeSort<int> sort([=](const std::string &msg) {std::cout << msg; out_file << msg; });
+
     //Call threaded mergesort
-    MergeSort<int> sort;
-
-    sort.sort(integerVector.data(), integerVector.size());
-
-    for (int i = 0; i < integerVector.size(); i++)
-    {
-        std::cout << integerVector[i] << ", ";
-    }
-    std::cout << "\n";
+    sort.sort_main(integerVector.data(), integerVector.size());
 
     return EXIT_SUCCESS;
 }
