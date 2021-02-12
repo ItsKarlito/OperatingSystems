@@ -18,15 +18,20 @@ private:
     
     report_callback_t report_callback;
 
-    inline void report_thread_(std::thread& t, const std::thread::id i)
+    inline void report_thread_start_(std::thread& t, const std::thread::id i)
     {
         std::ostringstream ss;
         ss << "Thread " << i << " started\n";
         this->report(ss.str());
-        t.join();
         ss.clear();
+    }
+
+    inline void report_thread_finish_(std::thread& t, const std::thread::id i)
+    {
+        std::ostringstream ss;
         ss << "Thread " << i << " finished ";
         this->report(ss.str());
+        ss.clear();
     }
 public:
     //initialize the output text file
@@ -39,7 +44,9 @@ public:
         {
             std::thread parent (&MergeSort::sort, this, arr, 0, size - 1);
             std::thread::id parent_id = parent.get_id();
-            report_thread_(parent, parent_id);
+            report_thread_start_(parent, parent_id);
+            parent.join();
+            report_thread_finish_(parent, parent_id);
             print_array(arr, 0, size-1);
         }
         else
@@ -62,14 +69,18 @@ private:
         //wait for first thread to finish before moving on
         std::thread first(&MergeSort::sort, this, arr, start, m);
         std::thread::id first_id = first.get_id();
-        report_thread_(first, first_id);
+        report_thread_start_(first, first_id);
+        first.join();
+        report_thread_finish_(first, first_id);
         print_array(arr, start, m);
 
         //start the second thread which will deal with 2nd half of given array
         //wait for second thread to finish before moving on
         std::thread second(&MergeSort::sort, this, arr, m + 1, end);
         std::thread::id second_id = second.get_id();
-        report_thread_(second, second_id);
+        report_thread_start_(second, second_id);
+        second.join();
+        report_thread_finish_(second, second_id);
         print_array(arr, m + 1, end);
 
         //Merge both segments into one. The end result will

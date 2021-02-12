@@ -45,9 +45,10 @@ int main(int argc, char const *argv[])
 
     out_file = std::ofstream(output_path);
 
-    //Call threaded mergesort
+    //Callback function
     MergeSort<int> sort([=](const std::string& msg){std::cout << msg; out_file << msg;});
-
+    
+    //Call threaded mergesort
     sort.sort_main(integerVector.data(), integerVector.size());
 
     return EXIT_SUCCESS;
