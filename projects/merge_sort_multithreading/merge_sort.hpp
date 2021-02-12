@@ -15,10 +15,10 @@ class MergeSort
 {
 private:
     typedef std::function<void(const std::string)> report_callback_t;
-    
+
     report_callback_t report_callback;
 
-    inline void report_thread_start_(std::thread& t, const std::thread::id i)
+    inline void report_thread_start_(std::thread &t, const std::thread::id i)
     {
         std::ostringstream ss;
         ss << "Thread " << i << " started\n";
@@ -26,13 +26,14 @@ private:
         ss.clear();
     }
 
-    inline void report_thread_finish_(std::thread& t, const std::thread::id i)
+    inline void report_thread_finish_(std::thread &t, const std::thread::id i)
     {
         std::ostringstream ss;
         ss << "Thread " << i << " finished ";
         this->report(ss.str());
         ss.clear();
     }
+
 public:
     //initialize the output text file
     MergeSort(report_callback_t report_callback = nullptr) : report_callback(report_callback) {}
@@ -42,19 +43,18 @@ public:
         //start the parent thread of merge sort
         if (size > 0)
         {
-            std::thread parent (&MergeSort::sort, this, arr, 0, size - 1);
+            std::thread parent(&MergeSort::sort, this, arr, 0, size - 1);
             std::thread::id parent_id = parent.get_id();
             report_thread_start_(parent, parent_id);
             parent.join();
             report_thread_finish_(parent, parent_id);
-            print_array(arr, 0, size-1);
+            print_array(arr, 0, size - 1);
         }
         else
             throw std::runtime_error("ERROR: Sorting size cannot be lower than 1");
     }
 
 private:
-
     //Sort for specific segment of array
     void sort(Type *arr, int start, int end)
     {
@@ -86,7 +86,6 @@ private:
         //Merge both segments into one. The end result will
         //be on the same location as arr
         merge(arr, start, m, m + 1, end);
-
     }
 
     //Merge two segments into arr
@@ -140,7 +139,7 @@ private:
     }
 
     //print contents of an array between indeces start and end
-    void print_array(Type* arr, int start, int end)
+    void print_array(Type *arr, int start, int end)
     {
         //iterate between indeces start and end
         std::ostringstream ss;
@@ -150,17 +149,17 @@ private:
             ss << arr[i] << ", ";
         }
         ss << "\n";
-        
+
         this->report(ss.str());
     }
 
     void report(const std::string msg)
     {
-        if(this->report_callback == nullptr)
+        if (this->report_callback == nullptr)
             return;
-        
+
         this->report_callback(msg);
-    } 
+    }
 };
 
 #endif

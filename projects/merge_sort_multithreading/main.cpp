@@ -7,7 +7,8 @@
 
 //argc = argument count
 //argv = argument verbose
-void log(const std::string& msg) {
+void log(const std::string &msg)
+{
     std::cout << msg;
 }
 std::ofstream out_file;
@@ -37,17 +38,16 @@ int main(int argc, char const *argv[])
     //Try to get the base path for the input (platform independent)
     std::string output_path = "output.txt";
     size_t slash_index = 0;
-    if(
-        ((slash_index = input_file.rfind('/')) != std::string::npos) || 
-        ((slash_index = input_file.rfind('\\')) != std::string::npos)
-    )
-        output_path = input_file.substr(0, slash_index+1) + output_path;
+    if (
+        ((slash_index = input_file.rfind('/')) != std::string::npos) ||
+        ((slash_index = input_file.rfind('\\')) != std::string::npos))
+        output_path = input_file.substr(0, slash_index + 1) + output_path;
 
     out_file = std::ofstream(output_path);
 
     //Callback function
-    MergeSort<int> sort([=](const std::string& msg){std::cout << msg; out_file << msg;});
-    
+    MergeSort<int> sort([=](const std::string &msg) {std::cout << msg; out_file << msg; });
+
     //Call threaded mergesort
     sort.sort_main(integerVector.data(), integerVector.size());
 
