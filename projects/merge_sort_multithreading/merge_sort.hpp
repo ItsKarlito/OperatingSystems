@@ -18,6 +18,7 @@ private:
 
     report_callback_t report_callback;
 
+    //Send message to output file regarding thread status
     inline void report_thread_start_(std::thread &t, const std::thread::id i)
     {
         std::ostringstream ss;
@@ -35,12 +36,12 @@ private:
     }
 
 public:
-    //initialize the output text file
+    //Initialize the output text file
     MergeSort(report_callback_t report_callback = nullptr) : report_callback(report_callback) {}
 
     void sort_main(Type *arr, size_t size)
     {
-        //start the parent thread of merge sort
+        //Start the parent thread of merge sort
         if (size > 0)
         {
             std::thread parent(&MergeSort::sort, this, arr, 0, size - 1);
@@ -65,7 +66,7 @@ private:
         //Divide arr into two segments, and sort each
         int m = start + (end - start) / 2;
 
-        //start the first thread which will deal with 1st half of given array
+        //Start the first thread which will deal with 1st half of given array
         //wait for first thread to finish before moving on
         std::thread first(&MergeSort::sort, this, arr, start, m);
         std::thread::id first_id = first.get_id();
@@ -74,7 +75,7 @@ private:
         report_thread_finish_(first, first_id);
         print_array(arr, start, m);
 
-        //start the second thread which will deal with 2nd half of given array
+        //Start the second thread which will deal with 2nd half of given array
         //wait for second thread to finish before moving on
         std::thread second(&MergeSort::sort, this, arr, m + 1, end);
         std::thread::id second_id = second.get_id();
@@ -141,7 +142,7 @@ private:
     //print contents of an array between indeces start and end
     void print_array(Type *arr, int start, int end)
     {
-        //iterate between indeces start and end
+        //Iterate between indeces start and end
         std::ostringstream ss;
 
         for (int i = start; i <= end; i++)
