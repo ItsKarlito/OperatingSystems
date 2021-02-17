@@ -28,4 +28,8 @@ That's it!, you can now build the project like usual. You'll find an executable 
 ## merge_sort_multithreading
 ### TODO
 - [x] Add multithreading to merge sort
-- [x] Add File read support to multithreading
+- [x] Add file i/o support
+
+## fair_share_process_scheduling
+### TODO
+- [ ] Add file i/o support 
