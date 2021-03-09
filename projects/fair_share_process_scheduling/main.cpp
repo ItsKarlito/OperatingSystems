@@ -37,12 +37,14 @@ int main(int argc, char const *argv[])
             break;
 
         case 3:
-            // TEST
+            //TEST
             // a.addProcess(5, 3);
             // a.addProcess(1, 2);
             // a.addProcess(3, 6);
             // a.addProcess(2, 4);
+            // b.addProcess(2,4);
             // procList = a.getProcesses();
+            // procList.push_back(b.getProcesses().at(0));
 
             // for (int i = 0; i < procList.size(); i++)
             // {

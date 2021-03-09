@@ -3,8 +3,6 @@
 
 #include <iostream>
 
-static u_int32_t uniqueId = 0;
-
 class Process
 {
 private:
@@ -13,7 +11,7 @@ private:
     u_int32_t serviceTime;
 
 public:
-    Process(u_int32_t, u_int32_t); //constructor
+    Process(u_int32_t, u_int32_t, u_int32_t); //constructor
 
     u_int32_t getId() { return id; }
 };
