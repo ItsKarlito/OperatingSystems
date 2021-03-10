@@ -22,11 +22,12 @@ int main(int argc, char const *argv[])
     //Read file, store integers in vector, close file
     u_int32_t timeQuantum = 0;
     std::string line;
+    std::vector<User *> userList;
     while (getline(file, line))
     {
-        User a('A');
-        User b('B');
-        std::vector<Process *> procList;
+        //User a('A');
+        //User b('B');
+        //std::vector<Process *> procList;
 
         // we assume that the input txt file has proper format
         switch (line.length())
@@ -37,24 +38,18 @@ int main(int argc, char const *argv[])
             break;
 
         case 3:
-            //TEST
-            // a.addProcess(5, 3);
-            // a.addProcess(1, 2);
-            // a.addProcess(3, 6);
-            // a.addProcess(2, 4);
-            // b.addProcess(2,4);
-            // procList = a.getProcesses();
-            // procList.push_back(b.getProcesses().at(0));
+            if(isalpha(line.at(1)))
+            {
+                userList.push_back(new User(line.at(1)));
+            }
+            else
+            {
+                userList.back()->addProcess(line.at(1), line.at(3));
+            }
 
-            // for (int i = 0; i < procList.size(); i++)
-            // {
-            //     std::cout << "PID: " << procList.at(i)->getId() << '\n';
-            // }
-
-            // NOTE FOR THE BOISSS: process line to find user name (A,B,etc) and store user in data structure (vector located in main for example), find all users processes and readyTime, serviceTime for those processes and add them to the user using User::addProcess()
             break;
         default:
-            // error in input.txt format
+            std::cout << "There's a problem with input.txt format \n";
             break;
         }
 
