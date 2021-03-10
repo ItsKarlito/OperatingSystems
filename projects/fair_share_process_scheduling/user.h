@@ -3,8 +3,9 @@
 
 #include <iostream>
 #include <vector>
+#include <functional>
 
-#include "process.h"
+#include "process.hpp"
 
 class User
 {
@@ -15,8 +16,9 @@ private:
 
 public:
     User(char);
+    ~User();
 
-    void addProcess(u_int32_t, u_int32_t);
+    void addProcess(const std::function<void()> &func);
     std::vector<Process *> getProcesses() { return processes; }
     
     // INCOMPLETE IMPLEMENTATION
