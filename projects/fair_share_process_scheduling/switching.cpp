@@ -5,13 +5,21 @@ namespace switching
     uint32_t user_t::id_counter = 0;
     uint32_t process_t::id_counter = 0;
 
-    process_t::process_t(const user_t* user): 
-        user(user), id(id_counter++), status(status_t::IDLE)
+    process_t::process_t(const user_t* user, size_t arrival_time, size_t service_time): 
+        user(user), id(id_counter++), status(status_t::IDLE), arrival_time(arrival_time), service_time(service_time)
     {
         if(this->user == nullptr)
             throw exceptions::null_pointer_error();
         
         this->create_thread();
+    }
+
+    process_t::~process_t()
+    {
+        if(!this->thread.joinable())
+            return;
+        this->terminate();
+        this->thread.join();
     }
 
     void process_t::create_thread()
@@ -44,6 +52,7 @@ namespace switching
                     break;
                 }
             }
+            this->status = status_t::TERMINATED;
         });
     }
 }
