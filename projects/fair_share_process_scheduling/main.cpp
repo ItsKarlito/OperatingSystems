@@ -38,13 +38,13 @@ int main(int argc, char const *argv[])
             break;
 
         case 3:
-            if(isalpha(line.at(1)))
+            if(isalpha(line.at(0)))
             {
-                userList.push_back(new User(line.at(1)));
+                userList.push_back(new User(line.at(0)));
             }
             else
             {
-                userList.back()->addProcess(line.at(1), line.at(3));
+                userList.back()->addProcess(line.at(0), line.at(3));
             }
 
             break;
