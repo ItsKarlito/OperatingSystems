@@ -9,12 +9,12 @@
 class User
 {
 private:
-    char id;
+    std::string id;
     u_int32_t pid = 0; // tracking the pids. ONLY INCREMENT (never decrement) when adding new process to ensure pid uniqueness. (until we overflow of course)
     std::vector<Process *> processes;
 
 public:
-    User(char);
+    User(std::string);
 
     void addProcess(u_int32_t, u_int32_t);
     std::vector<Process *> getProcesses() { return processes; }
