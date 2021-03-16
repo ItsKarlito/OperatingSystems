@@ -2,8 +2,6 @@
 #include <cstdlib>
 #include <fstream>
 
-#define PROCESS_DEBUG
-
 #include "scheduler.hpp"
 
 int main(int argc, char const *argv[])
