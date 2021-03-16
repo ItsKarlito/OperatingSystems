@@ -32,5 +32,11 @@ namespace switching
         this->update_burst();
     }
 
+    void user_t::update_quantum(size_t quantum)
+    {
+        this->quantum = quantum == 0 ? 1 : quantum;
+        this->update_burst();
+    }
+
     const std::string& user_t::get_name() const { return name; }
 }

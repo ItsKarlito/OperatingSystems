@@ -25,9 +25,11 @@ namespace switching
 
         const std::string& get_name() const;
 
+        void update_quantum(size_t quantum);
+
     private:
         size_t burst;
-        const size_t quantum;
+        size_t quantum;
         size_t registered_processes;
         const uint32_t id;
         static uint32_t id_counter;
