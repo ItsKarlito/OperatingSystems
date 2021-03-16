@@ -31,5 +31,5 @@ That's it!, you can now build the project like usual. You'll find an executable 
 
 ## TODO: fair_share_process_scheduling
 - [x] Parser class
-- [ ] Writer class
+- [x] Writer class
 - [ ] Context switching class
