@@ -9,6 +9,8 @@
 int main(int argc, char const *argv[])
 {
     std::vector<User> userList;
+    u_int32_t timeQuantum;
+
     Timer<std::chrono::seconds> timer(1);
 
     std::string inputFileName = "input.txt";
@@ -20,7 +22,7 @@ int main(int argc, char const *argv[])
     try
     {
         Parser parser(inputFileName);
-        parser.parse(userList);
+        parser.parse(userList, timeQuantum);
     }
     catch (const char *exception)
     {

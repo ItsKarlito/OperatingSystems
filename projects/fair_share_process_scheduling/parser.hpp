@@ -12,7 +12,6 @@ class Parser
 {
 private:
     std::ifstream inputFile;
-    u_int32_t timeQuantum;
 
 public:
     Parser(std::string fileName)
@@ -25,7 +24,7 @@ public:
         }
     }
 
-    void parse(std::vector<User> &userList)
+    void parse(std::vector<User> &userList, u_int32_t &timeQuantum)
     {
         //Read file, store integers in vector, close file
         std::string timeQuantumStr;
