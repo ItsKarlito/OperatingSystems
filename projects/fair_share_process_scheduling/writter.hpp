@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "user.h"
+#include "timer.hpp"
 
 /*
     TODO: implement current time retrieval
@@ -28,23 +29,17 @@ enum output_action
     P_FINISH
 };
 
+template<typename time_unit = std::chrono::seconds>
 class Writter
 {
 private:
     std::ofstream outputFile;
-    int currentTime = 0;
-    // TODO: create timer object
-
-    int updateCurrentTime()
-    {
-        // TODO: implement getting time from timer class
-        return 0;
-    }
+    Timer<time_unit>* timer;
 
 public:
-
-    Writter()
+    Writter(Timer<time_unit>* newTimer)
     {
+        timer = newTimer;
         
     }
 
@@ -60,20 +55,33 @@ public:
 
     void fileOutput(std::string userName, int pID, output_action action)
     {
-        //time = updateCurrentTime
+        if (!outputFile.is_open())
+        {
+            std::cout << "ERROR: Output file not opened\n";
+            return;
+        }
+
+        int currentTime = timer->getElapsedTime();
+
+        outputFile << "Time " << currentTime << ", User " << userName << ", Process " << pID;
+        std::cout << "Time " << currentTime << ", User " << userName << ", Process " << pID;
         switch(action)
         {
             case P_START:
-                outputFile << "User " << userName << ", Process " << pID << ", Started \n";
+                outputFile << ", Started \n";
+                std::cout << ", Started \n";
                 break;
             case P_PAUSE:
-                outputFile << "User " << userName << ", Process " << pID << ", Paused \n";
+                outputFile << ", Paused \n";
+                std::cout << ", Paused \n";
                 break;
             case P_RESUME:
-                outputFile << "User " << userName << ", Process " << pID << ", Resumed \n";
+                outputFile << ", Resumed \n";
+                std::cout << ", Resumed \n";
                 break;
             case P_FINISH:
-                outputFile << "User " << userName << ", Process " << pID << ", Finished \n";
+                outputFile << ", Finished \n";
+                std::cout << ", Finished \n";
                 break;
             default:
                 break;

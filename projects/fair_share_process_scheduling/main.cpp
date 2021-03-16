@@ -9,6 +9,7 @@
 int main(int argc, char const *argv[])
 {
     std::vector<User> userList;
+    Timer<std::chrono::seconds> timer(1);
 
     std::string inputFileName = "input.txt";
     if (argc == 2)
@@ -34,7 +35,7 @@ int main(int argc, char const *argv[])
         ((slash_index = inputFileName.rfind('\\')) != std::string::npos))
         output_path = inputFileName.substr(0, slash_index + 1) + output_path;
 
-    Writter writter;
+    Writter<std::chrono::seconds> writter(&timer);
     try
     {
         writter.openFile(output_path);
@@ -44,10 +45,12 @@ int main(int argc, char const *argv[])
         std::cout << e << std::endl;
     }
 
-    writter.fileOutput("B", 1, P_START);
-
-    Timer<std::chrono::milliseconds> timer(1000);
     timer.startTimer();
+
+    writter.fileOutput("B", 1, P_START);
+    writter.fileOutput("A", 69, P_FINISH);
+
+    //timer.stopTimer();
 
     return EXIT_SUCCESS;
 }

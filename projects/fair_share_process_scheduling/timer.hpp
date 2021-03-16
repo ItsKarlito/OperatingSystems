@@ -10,15 +10,15 @@ template <typename time_unit = std::chrono::seconds>
 class Timer
 {
 private:
-    u_int32_t elapsedTime;
-    u_int32_t delay;
+    u_int64_t elapsedTime;
+    u_int64_t delay;
     std::atomic<bool> isRun;
     std::thread timerThread;
 
 public:
-    Timer(u_int32_t Delay)
+    Timer(u_int64_t Delay)
     {
-        elapsedTime = 0;
+        elapsedTime = 1;
         delay = Delay;
         isRun = false;
     }
@@ -32,9 +32,9 @@ public:
         timerThread = std::thread([&]() {
             while (isRun)
             {
+                std::cout << elapsedTime << '\n';
                 std::this_thread::sleep_for(time_unit(delay));
                 elapsedTime++;
-                std::cout << elapsedTime << '\n';
             }
         });
     }
@@ -44,7 +44,7 @@ public:
         isRun = false;
     }
 
-    u_int32_t getElapsedTime() { return elapsedTime; }
+    u_int64_t getElapsedTime() { return elapsedTime; }
 
     ~Timer()
     {
