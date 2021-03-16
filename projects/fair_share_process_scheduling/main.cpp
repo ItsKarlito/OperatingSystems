@@ -8,13 +8,16 @@ int main(int argc, char const *argv[])
 {
     switching::user_t user("testing", 10);
     switching::process_t process(&user, 0, 10);
+    switching::process_t process2(&user, 0, 10);
     process.run();
     std::this_thread::sleep_for(std::chrono::seconds(3));
     std::cout << "RUNNING\n";
     process.pause();
+    process2.run();
     std::this_thread::sleep_for(std::chrono::seconds(2));
     process.run();
     std::this_thread::sleep_for(std::chrono::seconds(12));
+    process2.terminate();
     process.terminate();
 
     return EXIT_SUCCESS;

@@ -12,7 +12,7 @@
 #include <exception>
 #include <chrono>
 
-// #define PROCESS_DEBUG
+#define PROCESS_DEBUG
 
 namespace switching 
 {
