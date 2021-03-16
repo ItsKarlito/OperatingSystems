@@ -7,6 +7,7 @@ namespace switching
         if(this->thread.joinable())
             return;
         
+        this->alive = true;
         this->status = status_t::IDLE;
         this->thread = std::thread([&](){
             while(this->alive)

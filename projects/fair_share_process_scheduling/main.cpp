@@ -6,19 +6,14 @@
 
 int main(int argc, char const *argv[])
 {
-    switching::user_t user("testing", 10);
-    switching::process_t process(&user, 0, 10);
-    switching::process_t process2(&user, 0, 10);
-    process.run();
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    std::cout << "RUNNING\n";
-    process.pause();
-    process2.run();
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-    process.run();
-    std::this_thread::sleep_for(std::chrono::seconds(12));
-    process2.terminate();
-    process.terminate();
+    switching::scheduler scheduler(10, [=](const std::string &msg){std::cout << msg << "\n";});
+    switching::user_t * user = scheduler.register_user("A");
+    switching::user_t * user2 = scheduler.register_user("B");
+    scheduler.register_process(user, 0, 4);
+    scheduler.register_process(user, 1, 4);
+    scheduler.register_process(user2, 3, 4);
+    scheduler.run();
+    scheduler.wait_for_done();
 
     return EXIT_SUCCESS;
 }

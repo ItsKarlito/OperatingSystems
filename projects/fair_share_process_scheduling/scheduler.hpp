@@ -13,13 +13,22 @@ namespace switching
     public:
         typedef std::vector<user_t*> users_t;
         typedef std::vector<process_t*> processes_t;
+        typedef const std::function<void(const std::string&)> logger_t;
 
     private:
         users_t users;
         processes_t processes;
 
         const size_t quantum;
+
+        size_t current_process;
+        logger_t logger;
+
+        std::condition_variable done_cv;
+        std::mutex done_mtx;
+        bool done;
     public:
+        scheduler(size_t quantum, logger_t logger);
         scheduler(size_t quantum);
         ~scheduler();
 
@@ -35,6 +44,14 @@ namespace switching
         const processes_t& get_processes() const;
 
         const size_t get_quantum() const;
+
+        void update_quantums();
+
+        virtual void cycle() override;
+
+        void log(const std::string &msg) const;
+
+        void wait_for_done();
     };
 }
 

@@ -5,12 +5,12 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <ctime>
 #include <cstdint>
 #include <vector>
 #include <atomic>
 #include <exception>
 #include <chrono>
+#include <functional>
 
 #define PROCESS_DEBUG
 
