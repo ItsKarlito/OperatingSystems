@@ -2,7 +2,7 @@
 
 namespace switching
 {
-    scheduler::scheduler(size_t quantum, logger_t logger): quantum(quantum), logger(logger), current_process(0)
+    scheduler::scheduler(size_t quantum, Writer::writerFunctor_t logger): quantum(quantum), logger(logger), current_process(0)
     {
         this->create_thread();
     }
@@ -104,29 +104,33 @@ namespace switching
         this->current_process = this->current_process >= process_count ? 0 : this->current_process;
 
         process_t* cp = this->processes[this->current_process];
-        std::string base_log = "Process " + std::to_string(cp->get_id()) + " from user " + cp->get_user()->get_name() + " ";
 
-        this->log(base_log + "now running (" + std::to_string(cp->get_user()->get_burst()) + "s burst)");
         cp->run();
+        if(cp->is_virgin())
+        {
+            this->log(cp->get_user()->get_name(), cp->get_id(), Writer::output_action::P_START);
+            cp->set_virgin(false);
+        }
+        else
+            this->log(cp->get_user()->get_name(), cp->get_id(), Writer::output_action::P_RESUME);
+
         std::this_thread::sleep_for(time_unit_t(cp->get_user()->get_burst()));
 
-        this->log(base_log + "has been paused");
         cp->pause();
-        bool should_increment = true;
+        this->log(cp->get_user()->get_name(), cp->get_id(), Writer::output_action::P_PAUSE);
         if(cp->get_service_time() == 0)
         {
             this->remove_process(cp);
-            this->log(base_log + "has been terminated");
-            should_increment = false;
+            this->log(cp->get_user()->get_name(), cp->get_id(), Writer::output_action::P_FINISH);
         }
         
         this->current_process++;
     }
 
-    void scheduler::log(const std::string &msg) const
+    void scheduler::log(std::string userName, int pID, Writer::output_action action)
     {
         if(this->logger != nullptr)
-            this->logger(msg);
+            this->logger(userName, pID, action);
     }
 
     void scheduler::wait_for_done()

@@ -1,10 +1,12 @@
-#ifndef WRITTER_HPP
-#define WRITTER_HPP
+#ifndef WRITER_HPP_
+#define WRITER_HPP_
 
 #include <iostream>
 #include <fstream>
+#include <functional>
 #include <vector>
 #include <sstream>
+#include <ctime>
 
 #include "user.h"
 #include "timer.hpp"
@@ -12,7 +14,7 @@
 /*
     TODO: implement current time retrieval
 
-    Class writter creates and output to "output.txt"
+    Class Writer creates and output to "output.txt"
     To output an action call:
         fileOutput(std::string userName, int pID, output_action action)
     Arguments:
@@ -21,26 +23,42 @@
         output_action - public enum
 */
 
-enum output_action
+class Writer
 {
-    P_START,
-    P_RESUME,
-    P_PAUSE,
-    P_FINISH
-};
+public:
+    enum output_action
+    {
+        P_START,
+        P_RESUME,
+        P_PAUSE,
+        P_FINISH
+    };
 
-template<typename time_unit = std::chrono::seconds>
-class Writter
-{
+    typedef std::function<void(std::string userName, int pID, output_action action)> writerFunctor_t;
+
 private:
     std::ofstream outputFile;
-    Timer<time_unit>* timer;
+    size_t offset = 0;
+
+private:
+    size_t get_current_time()
+    {
+        return time(NULL);
+    }
 
 public:
-    Writter(Timer<time_unit>* newTimer)
+    Writer() 
     {
-        timer = newTimer;
-        
+        this->set_offset(0);
+    }
+
+    void set_offset()
+    {
+        this->offset = this->get_current_time();
+    }
+    void set_offset(size_t t)
+    { 
+        this->offset = t;
     }
 
     void openFile(std::string outputFilePath)
@@ -61,7 +79,7 @@ public:
             return;
         }
 
-        int currentTime = timer->getElapsedTime();
+        long int currentTime = this->get_current_time() - this->offset;
 
         outputFile << "Time " << currentTime << ", User " << userName << ", Process " << pID;
         std::cout << "Time " << currentTime << ", User " << userName << ", Process " << pID;

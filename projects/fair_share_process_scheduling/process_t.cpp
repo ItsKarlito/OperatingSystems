@@ -5,7 +5,7 @@ namespace switching
     uint32_t process_t::id_counter = 0;
     
     process_t::process_t(user_t* user, size_t arrival_time, size_t service_time):
-        user(user), id(id_counter++), arrival_time(arrival_time), service_time(service_time)
+        user(user), id(id_counter++), arrival_time(arrival_time), service_time(service_time), virgin(true)
     {
         if(this->user == nullptr)
             throw exceptions::null_pointer_error();
@@ -37,5 +37,14 @@ namespace switching
         }
         else 
             this->pause();
+    }
+
+    void process_t::set_virgin(bool v)
+    {
+        this->virgin = v;
+    }
+    bool process_t::is_virgin()
+    {
+        return this->virgin;
     }
 }

@@ -11,7 +11,7 @@ private:
     u_int32_t serviceTime;
 
 public:
-    Process(u_int32_t, u_int32_t, u_int32_t); //constructor
+    Process(u_int32_t ReadyTime, u_int32_t ServiceTime,  u_int32_t id) {}
 
     u_int32_t getReadyTime() { return readyTime; }
     u_int32_t getServiceTime() { return serviceTime; }

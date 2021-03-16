@@ -27,6 +27,9 @@ namespace switching
 
         virtual void cycle() override;
 
+        void set_virgin(bool v);
+        bool is_virgin();
+
     private:
         user_t* user;
         std::atomic<size_t> service_time;
@@ -34,6 +37,8 @@ namespace switching
 
         const uint32_t id;
         static uint32_t id_counter;
+
+        bool virgin;
     };
 }
 

@@ -6,6 +6,8 @@
 #include "user_t.hpp"
 #include "process_t.hpp"
 
+#include "Writer.hpp"
+
 namespace switching 
 {
     class scheduler: public thread_controller
@@ -13,7 +15,6 @@ namespace switching
     public:
         typedef std::vector<user_t*> users_t;
         typedef std::vector<process_t*> processes_t;
-        typedef const std::function<void(const std::string&)> logger_t;
 
     private:
         users_t users;
@@ -22,13 +23,13 @@ namespace switching
         const size_t quantum;
 
         size_t current_process;
-        logger_t logger;
+        Writer::writerFunctor_t logger;
 
         std::condition_variable done_cv;
         std::mutex done_mtx;
         bool done;
     public:
-        scheduler(size_t quantum, logger_t logger);
+        scheduler(size_t quantum, Writer::writerFunctor_t logger);
         scheduler(size_t quantum);
         ~scheduler();
 
@@ -49,7 +50,7 @@ namespace switching
 
         virtual void cycle() override;
 
-        void log(const std::string &msg) const;
+        void log(std::string userName, int pID, Writer::output_action action);
 
         void wait_for_done();
     };
