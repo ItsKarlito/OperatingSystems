@@ -23,9 +23,9 @@ namespace switching
         scheduler(size_t quantum);
         ~scheduler();
 
-        void register_user(const std::string &name);
+        user_t * register_user(const std::string &name);
 
-        void register_process(user_t * user, size_t arrival_time, size_t service_time);
+        process_t * register_process(user_t * user, size_t arrival_time, size_t service_time);
         void remove_process(process_t * process);
 
         int32_t find_user(user_t * user);

@@ -16,12 +16,14 @@ namespace switching
             delete process;
     }
 
-    void scheduler::register_user(const std::string &name)
+    user_t * scheduler::register_user(const std::string &name)
         {
-            this->users.push_back(new user_t(name, this->quantum));
+            user_t * user = new user_t(name, this->quantum);
+            this->users.push_back(user);
+            return user;
         }
 
-    void scheduler::register_process(user_t * user, size_t arrival_time, size_t service_time)
+    process_t * scheduler::register_process(user_t * user, size_t arrival_time, size_t service_time)
     {
         
         size_t index = 0;
@@ -30,10 +32,13 @@ namespace switching
 
         this->pause();
 
-        processes.push_back(new process_t(this->users[index], arrival_time, service_time));
+        process_t * process = new process_t(this->users[index], arrival_time, service_time);
+        processes.push_back(process);
         this->users[index]->increment_registered_processes();
 
         this->run();
+
+        return process;
     }
     void scheduler::remove_process(process_t * process)
     {
