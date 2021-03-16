@@ -43,7 +43,7 @@ int main(int argc, char const *argv[])
     }
 
     timeQuantum = parser.getTimeQuantum();
-    switching::scheduler scheduler(timeQuantum, [=](const std::string &msg){std::cout << msg << "\n";});
+    switching::scheduler scheduler(timeQuantum);
 
     parser.parse(userList, scheduler);
 
