@@ -42,5 +42,10 @@ namespace switching
 
     void thread_controller::run() { this->set_status(status_t::RUNNING); }
     void thread_controller::pause() { this->set_status(status_t::IDLE); }
-    void thread_controller::terminate() { this->set_status(status_t::TERMINATED); this->thread.join(); }
+    void thread_controller::terminate() 
+    { 
+        this->set_status(status_t::TERMINATED); 
+        if(this->thread.joinable())
+            this->thread.join(); 
+    }
 }

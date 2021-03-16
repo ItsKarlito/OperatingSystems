@@ -13,6 +13,7 @@ namespace switching
         void create_thread();
         std::thread& get_thread();
 
+    public:
         status_t get_status() const;
         void set_status(status_t status);
 
