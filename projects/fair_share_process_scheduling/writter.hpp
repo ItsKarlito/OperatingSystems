@@ -48,9 +48,9 @@ public:
         
     }
 
-    void openFile()
+    void openFile(std::string outputFilePath)
     {
-        outputFile.open("projects/fair_share_process_scheduling/output.txt");
+        outputFile.open(outputFilePath);
 
         if (!outputFile.is_open())
         {
