@@ -1,1 +1,2 @@
-User B, Process 150, Started 
+Time 1, User B, Process 1, Started 
+Time 1, User A, Process 69, Finished 
