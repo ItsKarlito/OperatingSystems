@@ -20,7 +20,7 @@ int main(int argc, char const *argv[])
     // scheduler.run();
     // scheduler.wait_for_done();
 
-    std::vector<User> userList;
+    std::vector<switching::user_t> userList;
     u_int32_t timeQuantum;
 
     Timer<std::chrono::seconds> timer(1);
@@ -31,16 +31,22 @@ int main(int argc, char const *argv[])
         inputFileName = (char *)argv[1];
     }
 
+    Parser parser;
+
     try
     {
-        Parser parser(inputFileName);
-        parser.parse(userList, timeQuantum);
+        parser.openFile(inputFileName);
     }
     catch (const char *exception)
     {
         std::cout << exception << std::endl;
         return EXIT_FAILURE;
     }
+
+    timeQuantum = parser.getTimeQuantum();
+    switching::scheduler scheduler(timeQuantum, [=](const std::string &msg){std::cout << msg << "\n";});
+
+    parser.parse(userList, scheduler);
 
     std::string output_path = "output.txt";
     size_t slash_index = 0;
@@ -49,20 +55,20 @@ int main(int argc, char const *argv[])
         ((slash_index = inputFileName.rfind('\\')) != std::string::npos))
         output_path = inputFileName.substr(0, slash_index + 1) + output_path;
 
-    Writter<std::chrono::seconds> writter(&timer);
-    try
-    {
-        writter.openFile(output_path);
-    }
-    catch (const char *e)
-    {
-        std::cout << e << std::endl;
-    }
+    //Writter<std::chrono::seconds> writter(&timer);
+    // try
+    // {
+    //     writter.openFile(output_path);
+    // }
+    // catch (const char *e)
+    // {
+    //     std::cout << e << std::endl;
+    // }
 
-    timer.startTimer();
+    // timer.startTimer();
 
-    writter.fileOutput("B", 1, P_START);
-    writter.fileOutput("A", 69, P_FINISH);
+    // writter.fileOutput("B", 1, P_START);
+    // writter.fileOutput("A", 69, P_FINISH);
 
     //timer.stopTimer();
 

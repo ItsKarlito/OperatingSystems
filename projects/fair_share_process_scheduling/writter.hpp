@@ -6,7 +6,6 @@
 #include <vector>
 #include <sstream>
 
-#include "user.h"
 #include "timer.hpp"
 
 /*
