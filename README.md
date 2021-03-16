@@ -30,4 +30,6 @@ That's it!, you can now build the project like usual. You'll find an executable 
 - [x] Add file i/o support
 
 ## TODO: fair_share_process_scheduling
-- [ ] Add file i/o support 
+- [x] Parser class
+- [x] Writer class
+- [ ] Context switching class
