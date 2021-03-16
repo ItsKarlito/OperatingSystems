@@ -8,13 +8,10 @@
 #include <sstream>
 #include <ctime>
 
-#include "user.h"
 #include "timer.hpp"
 
 /*
-    TODO: implement current time retrieval
-
-    Class Writer creates and output to "output.txt"
+    Class writter creates and output to "output.txt"
     To output an action call:
         fileOutput(std::string userName, int pID, output_action action)
     Arguments:

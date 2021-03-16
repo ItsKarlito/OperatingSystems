@@ -6,7 +6,7 @@
 #include <vector>
 #include <sstream>
 
-#include "user.h"
+#include "scheduler.hpp"
 
 class Parser
 {
@@ -14,7 +14,9 @@ private:
     std::ifstream inputFile;
 
 public:
-    Parser(std::string fileName)
+    Parser(){}
+
+    void openFile(std::string fileName)
     {
         inputFile.open(fileName);
 
@@ -24,15 +26,21 @@ public:
         }
     }
 
-    void parse(std::vector<User> &userList, u_int32_t &timeQuantum)
+    uint32_t getTimeQuantum()
     {
-        //Read file, store integers in vector, close file
+        uint32_t timeQuantum = 0;
         std::string timeQuantumStr;
         getline(inputFile, timeQuantumStr);
 
         timeQuantum = std::stoi(timeQuantumStr);
         std::cout << "Time Quantum: " << timeQuantum << '\n';
 
+        return timeQuantum;
+    }
+
+    void parse(std::vector<switching::user_t> &userList, switching::scheduler &scheduler)
+    {
+        //Read file, store integers in vector, close file
         std::string line;
         std::string userName;
         std::string processCountStr;
@@ -41,11 +49,12 @@ public:
             std::stringstream strStream(line);
 
             strStream >> userName;
-            User tempUser(userName);
-            userList.push_back(tempUser);
+            switching::user_t * tempUser = scheduler.register_user(userName);
+            userList.push_back(*tempUser);
 
             strStream >> processCountStr;
             u_int32_t processCount = std::stoi(processCountStr);
+            userList.back().set_registered_processes(processCount);
 
             std::cout << "User Name: " << userName << '\n';
             std::cout << "  Process Count: " << processCount << '\n';
@@ -63,9 +72,9 @@ public:
                 strStream >> arrivalTimeStr;
                 strStream >> serviceTimeStr;
 
-                tempUser.addProcess(std::stoi(arrivalTimeStr), std::stoi(serviceTimeStr));
+                scheduler.register_process(&userList.back(), std::stoi(arrivalTimeStr), std::stoi(serviceTimeStr));
 
-                std::cout << "      Process " << tempUser.getProcesses().back()->getId() << ": " << tempUser.getProcesses().back()->getReadyTime() << ", " << tempUser.getProcesses().back()->getServiceTime() << '\n';
+                std::cout << "      Process: " << arrivalTimeStr << ", " << serviceTimeStr << std::endl;
             }
         }
     }
