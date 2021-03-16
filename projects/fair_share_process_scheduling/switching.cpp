@@ -20,7 +20,6 @@ namespace switching
         if(!this->thread.joinable())
             return;
         this->terminate();
-        this->thread.join();
     }
 
     void process_t::create_thread()
