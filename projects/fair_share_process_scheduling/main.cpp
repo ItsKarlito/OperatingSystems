@@ -4,15 +4,16 @@
 
 #include "parser.hpp"
 #include "writter.hpp"
+#include "timer.hpp"
 
 int main(int argc, char const *argv[])
 {
     std::vector<User> userList;
-    
+
     std::string inputFileName = "input.txt";
     if (argc == 2)
     {
-        inputFileName = (char*) argv[1];
+        inputFileName = (char *)argv[1];
     }
 
     try
@@ -38,12 +39,15 @@ int main(int argc, char const *argv[])
     {
         writter.openFile(output_path);
     }
-    catch(const char *e)
+    catch (const char *e)
     {
         std::cout << e << std::endl;
     }
 
     writter.fileOutput("B", 1, P_START);
+
+    Timer<std::chrono::milliseconds> timer(1000);
+    timer.startTimer();
 
     return EXIT_SUCCESS;
 }
