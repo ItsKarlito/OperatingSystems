@@ -12,8 +12,6 @@
 #include <chrono>
 #include <functional>
 
-#define PROCESS_DEBUG
-
 namespace switching 
 {
     typedef std::chrono::seconds time_unit_t;
