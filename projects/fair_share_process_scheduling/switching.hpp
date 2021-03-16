@@ -37,36 +37,22 @@ namespace switching
     class user_t
     {
     public:
-        user_t(const std::string &name, size_t quantum): name(name), id(id_counter++), burst(0), registered_processes(0), quantum(quantum){}
+        user_t(const std::string &name, size_t quantum);
 
-        uint32_t get_id() const {return id;} 
+        uint32_t get_id() const;
 
         bool operator==(const user_t& user) const {return this->id == user.get_id();} 
 
-        size_t get_burst() const {return this->burst;}
-        void update_burst() 
-        {
-            this->burst = this->quantum/this->registered_processes;
-            this->burst = this->burst < 0 ? 1: this->burst;
-        }
+        size_t get_burst() const;
+        void update_burst();
 
-        void increment_registered_processes() 
-        {
-            this->set_registered_processes(this->registered_processes++);
-        }
-        void decrement_registered_processes() 
-        {
-            this->set_registered_processes(this->registered_processes > 0 ? this->registered_processes-- : 0);
-        }
+        void increment_registered_processes();
+        void decrement_registered_processes();
 
-        size_t get_registered_processes() const {return this->registered_processes;}
-        void set_registered_processes(size_t registered_processes) 
-        {
-            this->registered_processes = registered_processes;
-            this->update_burst();
-        }
+        size_t get_registered_processes() const;
+        void set_registered_processes(size_t registered_processes);
 
-        const std::string& get_name() const {return name;}
+        const std::string& get_name() const;
 
     private:
         size_t burst;
@@ -77,55 +63,57 @@ namespace switching
         std::string name;
     };
     
-    class process_t 
+    class thread_controller
+    {
+    protected:
+        virtual void cycle() = 0;
+
+        void create_thread();
+        std::thread& get_thread();
+
+        status_t get_status() const;
+        void set_status(status_t status);
+
+        void run();
+        void pause();
+        void terminate();
+
+    private:
+        std::thread thread;
+        std::mutex mtx;
+        std::atomic<status_t> status;
+        std::atomic<bool> alive;
+        std::condition_variable cv;
+    };
+
+    class process_t: public thread_controller
     {
     public:
-        process_t(const user_t* user, size_t arrival_time, size_t service_time);
+        process_t(user_t* user, size_t arrival_time, size_t service_time);
         ~process_t();
 
-        std::thread& get_thread() {return this->thread;}
+        size_t get_arrival_time() const;
+        size_t get_service_time() const;
+        void set_service_time(size_t service_time);
 
-        status_t get_status() const {return this->status;}
-        void set_status(status_t status) 
-        {
-            std::unique_lock<std::mutex> lck(this->mtx);
-            this->status = status;
-            cv.notify_all();
-        }
-
-        void run() {this->set_status(status_t::RUNNING);}
-        void pause() {this->set_status(status_t::IDLE);}
-        void terminate() {this->set_status(status_t::TERMINATED); this->thread.join();}
-
-        size_t get_arrival_time() const {return this->arrival_time;}
-        size_t get_service_time() const {return this->service_time;}
-        void set_service_time(size_t service_time) {this->service_time = service_time;}
-
-        uint32_t get_id() const {return this->id;}
+        uint32_t get_id() const;
 
         bool operator==(const process_t& process) const {return this->id == process.get_id();}
 
-        user_t * get_user() {return this->user;}
+        user_t * get_user();
 
-    private:
-        void create_thread();
+        virtual void cycle() override;
 
     private:
         user_t* user;
         std::atomic<size_t> service_time;
         const size_t arrival_time;
 
-        std::thread thread;
-        std::mutex mtx;
-        std::condition_variable cv;
-
         const uint32_t id;
         static uint32_t id_counter;
-
-        std::atomic<status_t> status;
     }; 
 
-    class scheduler
+    class scheduler: public thread_controller
     {
     public:
         typedef std::vector<user_t*> users_t;
@@ -136,71 +124,22 @@ namespace switching
         processes_t processes;
 
         const size_t quantum;
-
-        std::thread scheduler_thread;
     public:
-        scheduler(size_t quantum): quantum(quantum){}
+        scheduler(size_t quantum);
+        ~scheduler();
 
-        void create_thread();
+        void register_user(const std::string &name);
 
-        void start();
-        void pause();
-        void terminate();
+        void register_process(user_t * user, size_t arrival_time, size_t service_time);
+        void remove_process(process_t * process);
 
-        void register_user(const std::string &name)
-        {
-            this->users.push_back(new user_t(name, this->quantum));
-        }
+        int32_t find_user(user_t * user);
+        int32_t find_process(process_t * process);
 
-        void register_process(user_t * user, size_t arrival_time, size_t service_time)
-        {
-            
-            size_t index = 0;
-            if((index = find_user(user)) < 0)
-                throw exceptions::invalid_user();
+        const users_t& get_users() const;
+        const processes_t& get_processes() const;
 
-            this->pause();
-
-            processes.push_back(new process_t(this->users[index], arrival_time, service_time));
-            this->users[index]->increment_registered_processes();
-
-            this->start();
-        }
-        void remove_process(process_t * process)
-        {
-            
-            size_t index = 0;
-            if((index = find_process(process)) < 0)
-                throw exceptions::invalid_user();
-
-            this->pause();
-            
-            this->processes[index]->get_user()->decrement_registered_processes();
-            delete this->processes[index];
-            this->processes.erase(this->processes.begin() + index);
-
-            this->start();
-        }
-
-        int32_t find_user(user_t * user)
-        {
-            for(int32_t i = 0; i < this->users.size(); i++)
-                if(*this->users[i] == *user)
-                    return i;
-            return -1;
-        }
-        int32_t find_process(process_t * process)
-        {
-            for(int32_t i = 0; i < this->processes.size(); i++)
-                if(*this->processes[i] == *process)
-                    return i;
-            return -1;
-        }
-
-        const users_t& get_users() const {return this->users;}
-        const processes_t& get_processes() const {return this->processes;}
-
-        const size_t get_quantum() const {return this->quantum;}
+        const size_t get_quantum() const;
     };
 }
 

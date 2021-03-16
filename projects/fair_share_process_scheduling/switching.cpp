@@ -3,56 +3,72 @@
 
 namespace switching
 {
-    uint32_t user_t::id_counter = 0;
-    uint32_t process_t::id_counter = 0;
-
-    process_t::process_t(const user_t* user, size_t arrival_time, size_t service_time): 
-        user(user), id(id_counter++), status(status_t::IDLE), arrival_time(arrival_time), service_time(service_time)
+    scheduler::scheduler(size_t quantum): quantum(quantum)
     {
-        if(this->user == nullptr)
-            throw exceptions::null_pointer_error();
-        
         this->create_thread();
     }
 
-    process_t::~process_t()
+    scheduler::~scheduler()
     {
-        if(!this->thread.joinable())
-            return;
         this->terminate();
+        for(user_t * user : this->users)
+            delete user;
+        for(process_t * process : this->processes)
+            delete process;
     }
 
-    void process_t::create_thread()
+    void scheduler::register_user(const std::string &name)
+        {
+            this->users.push_back(new user_t(name, this->quantum));
+        }
+
+    void scheduler::register_process(user_t * user, size_t arrival_time, size_t service_time)
     {
-        if(this->thread.joinable())
-            return;
         
-        this->thread = std::thread([&](){
-            bool alive = true;
-            while(alive)
-            {
-                std::unique_lock<std::mutex> lck(this->mtx);
-                while(this->status == status_t::IDLE) cv.wait(lck);
+        size_t index = 0;
+        if((index = find_user(user)) < 0)
+            throw exceptions::invalid_user();
 
-                switch (this->status)
-                {
-                case status_t::IDLE:
-                    break;
-                case status_t::TERMINATED:
-                    alive = false;
-                    break;                
-                case status_t::RUNNING:
-                    if(this->service_time > 0)
-                    {
-                        std::this_thread::sleep_for(time_unit_t(1));
-                        this->service_time--;
-                    }
-                    else 
-                        alive = false;
-                    break;
-                }
-            }
-            this->status = status_t::TERMINATED;
-        });
+        this->pause();
+
+        processes.push_back(new process_t(this->users[index], arrival_time, service_time));
+        this->users[index]->increment_registered_processes();
+
+        this->run();
     }
+    void scheduler::remove_process(process_t * process)
+    {
+        
+        size_t index = 0;
+        if((index = find_process(process)) < 0)
+            throw exceptions::invalid_user();
+
+        this->pause();
+        
+        this->processes[index]->get_user()->decrement_registered_processes();
+        delete this->processes[index];
+        this->processes.erase(this->processes.begin() + index);
+
+        this->run();
+    }
+
+    int32_t scheduler::find_user(user_t * user)
+    {
+        for(int32_t i = 0; i < this->users.size(); i++)
+            if(*this->users[i] == *user)
+                return i;
+        return -1;
+    }
+    int32_t scheduler::find_process(process_t * process)
+    {
+        for(int32_t i = 0; i < this->processes.size(); i++)
+            if(*this->processes[i] == *process)
+                return i;
+        return -1;
+    }
+
+    const scheduler::users_t& scheduler::get_users() const { return this->users; }
+    const scheduler::processes_t& scheduler::get_processes() const { return this->processes; }
+
+    const size_t scheduler::get_quantum() const { return this->quantum; }
 }
