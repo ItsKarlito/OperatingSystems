@@ -5,6 +5,8 @@
 #include "thread_controller.hpp"
 #include "user_t.hpp"
 
+//#define PROCESS_DEBUG
+
 namespace switching 
 {
     class process_t: public thread_controller

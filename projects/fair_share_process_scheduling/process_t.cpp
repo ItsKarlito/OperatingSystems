@@ -31,7 +31,9 @@ namespace switching
         {
             std::this_thread::sleep_for(time_unit_t(1));
             this->service_time--;
+#ifdef PROCESS_DEBUG
             std::cout << "service time: " << this->service_time << "\n";
+#endif
         }
         else 
             this->pause();
