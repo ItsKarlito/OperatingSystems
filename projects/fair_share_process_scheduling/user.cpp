@@ -1,6 +1,6 @@
 #include "user.h"
 
-User::User(char Id)
+User::User(std::string Id)
 {
     id = Id;
 }
