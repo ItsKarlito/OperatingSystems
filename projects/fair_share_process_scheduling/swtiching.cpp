@@ -181,15 +181,7 @@ namespace switching
         std::unique_lock<std::mutex> lck(scheduling_mutex);
         process_t * process = new process_t(this->users[index], arrival_time, service_time);
         this->processes.push_back(process);
-
-        // size_t i = 0;
-        // this->processes.reserve(this->processes.size()+1);
-        // for(; i < this->processes.size() && this->processes[i]->get_arrival_time() < service_time; i++);
-        // this->processes.insert(this->processes.begin() + i, process);
         this->users[index]->increment_registered_processes();
-
-        // if(this->processes[this->current_process]->get_arrival_time() < service_time)
-        //     this->current_process = this->processes.size()-1;
 
         this->update_quantums();
 
@@ -236,13 +228,21 @@ namespace switching
         size_t pc = this->processes.size();
         if(pc == 0)
             return;
+        size_t active_users = 0;
+        for(user_t *u : this->users)
+        {
+            if(u->get_registered_processes() > 0)
+                active_users++;
+        }
+
+        size_t new_quantum = this->quantum/(float)active_users;
+        new_quantum = new_quantum < 1 ? 1 : new_quantum;
 
         for(user_t *u : this->users)
         {
             size_t rp = u->get_registered_processes();
             if(rp < 1)
                 continue;
-            size_t new_quantum = this->quantum * ((float)rp/(float)pc);
             u->update_quantum(new_quantum < 1 ? 1 : new_quantum);
         }
     }
