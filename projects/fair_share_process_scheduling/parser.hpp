@@ -1,7 +1,8 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
-//#define DEBUG
+#define DEBUG
+#define LOG_DEBUG (MSG) std::cout << "[DEBUG] " << MSG << "\n";
 
 #include <iostream>
 #include <fstream>
@@ -13,21 +14,21 @@ class Parser
 private:
     struct Process
     {
-        uint32_t arrivalTime;
-        uint32_t serviceTime;
+        uint32_t arrivalTime = 0;
+        uint32_t serviceTime = 0;
     };
 
     struct User
     {
         std::string name;
         std::vector<Process> processes;
-        uint32_t processCount;
+        uint32_t processCount = 0;
     };
 
     struct Data
     {
         std::vector<User> users;
-        uint32_t timeQuantum;
+        uint32_t timeQuantum = 0;
     };
 
     std::ifstream inputFile;
@@ -56,7 +57,7 @@ public:
         data.timeQuantum = std::stoi(timeQuantumStr);
 
 #ifdef DEBUG
-        std::cout << "Time Quantum: " << data.timeQuantum << std::endl;
+        std::cout << "DEBUG Time Quantum: " << data.timeQuantum << std::endl;
 #endif
 
         std::string line;
@@ -67,14 +68,16 @@ public:
             std::stringstream strStream(line);
 
             strStream >> user.name;
-            data.users.push_back(user);
 
             strStream >> processCountStr;
+#ifdef DEBUG
+            std::cout << "DEBUG Process Count String: " << std::stoi(processCountStr) << std::endl;
+#endif
             user.processCount = std::stoi(processCountStr);
 
 #ifdef DEBUG
-            std::cout << "User Name: " << user.name << std::endl;
-            std::cout << "  Process Count: " << user.processCount << std::endl;
+            std::cout << "DEBUG User Name: " << user.name << std::endl;
+            std::cout << "DEBUG   Process Count: " << user.processCount << std::endl;
 #endif
 
             for (int i = 0; i < user.processCount; i++)
@@ -98,10 +101,11 @@ public:
                 user.processes.push_back(process);
 
 #ifdef DEBUG
-                std::cout << "      Process: " << process.arrivalTime << ", " << process.serviceTime << std::endl;
+                std::cout << "DEBUG       Process: " << process.arrivalTime << ", " << process.serviceTime << std::endl;
 #endif
 
             }
+            data.users.push_back(user);
         }
         inputFile.close();
     }

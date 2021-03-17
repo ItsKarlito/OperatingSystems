@@ -34,7 +34,7 @@ int main(int argc, char const *argv[])
     {
         uint32_t processCount = parser.getData().users.at(i).processCount;
         std::cout << "User Name: " << parser.getData().users.at(i).name << '\n';
-        std::cout << "  Process Count: " << parser.getData().users.at(i).processCount << '\n';
+        std::cout << "  Process Count: " << processCount << '\n';
         for (int j = 0; j < processCount; j++) {
             std::cout << "      Process: " << parser.getData().users.at(i).processes.at(j).arrivalTime << ", " << parser.getData().users.at(i).processes.at(j).serviceTime << '\n';
         }
