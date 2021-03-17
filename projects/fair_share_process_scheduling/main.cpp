@@ -10,43 +10,36 @@
 
 int main(int argc, char const *argv[])
 {
-    // Scheduler use example
-    // switching::scheduler scheduler(10, [=](const std::string &msg){std::cout << msg << "\n";});
-    // switching::user_t * user = scheduler.register_user("A");
-    // switching::user_t * user2 = scheduler.register_user("B");
-    // scheduler.register_process(user, 0, 4);
-    // scheduler.register_process(user, 1, 4);
-    // scheduler.register_process(user2, 3, 4);
-    // scheduler.run();
-    // scheduler.wait_for_done();
-
-    std::vector<switching::user_t> userList;
-    u_int32_t timeQuantum;
-
-    Timer<std::chrono::seconds> timer(1);
-
     std::string inputFileName = "input.txt";
     if (argc == 2)
     {
         inputFileName = (char *)argv[1];
     }
 
-    Parser parser;
+    Parser parser(inputFileName);
 
     try
     {
-        parser.openFile(inputFileName);
+        parser.parse();
     }
     catch (const char *exception)
     {
         std::cout << exception << std::endl;
         return EXIT_FAILURE;
     }
+ 
+    std::cout << "Time Quantum: " << parser.getData().timeQuantum << '\n';
 
-    timeQuantum = parser.getTimeQuantum();
-    switching::scheduler scheduler(timeQuantum, [=](const std::string &msg){std::cout << msg << "\n";});
-
-    parser.parse(userList, scheduler);
+    for (int i = 0; i < parser.getData().users.size(); i++)
+    {
+        uint32_t numProcesses = parser.getData().users.at(i).processes.size();
+        std::cout << "User Name: " << parser.getData().users.at(i).name << '\n';
+        std::cout << "  Process Count: " << numProcesses << '\n';
+        for (int j = 0; j < numProcesses; j++) {
+            std::cout << "      Process: " << parser.getData().users.at(i).processes.at(j).arrivalTime << ", " << parser.getData().users.at(i).processes.at(j).serviceTime << '\n';
+        }
+    }
+    
 
     std::string output_path = "output.txt";
     size_t slash_index = 0;
@@ -54,26 +47,6 @@ int main(int argc, char const *argv[])
         ((slash_index = inputFileName.rfind('/')) != std::string::npos) ||
         ((slash_index = inputFileName.rfind('\\')) != std::string::npos))
         output_path = inputFileName.substr(0, slash_index + 1) + output_path;
-
-    Writter<std::chrono::seconds> writter(&timer);
-    try
-    {
-        writter.openFile(output_path);
-    }
-    catch (const char *e)
-    {
-        std::cout << e << std::endl;
-    }
-
-    scheduler.run();
-    scheduler.wait_for_done();
-
-    //timer.startTimer();
-
-    //writter.fileOutput("B", 1, P_START);
-    //writter.fileOutput("A", 69, P_FINISH);
-
-    //timer.stopTimer();
 
     return EXIT_SUCCESS;
 }
