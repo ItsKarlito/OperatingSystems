@@ -64,12 +64,14 @@ namespace switching
 
         void update_quantum(size_t quantum);                                                            // Updates the quantum (and burst)
 
+        uint32_t increment_process_id() { return this->process_id_counter++; }
     private:
         size_t burst = 0;
         size_t quantum = 0;
         size_t registered_processes = 0;
         const uint32_t id;
         static uint32_t id_counter;
+        uint32_t process_id_counter = 0;
         std::string name;
     };
 
@@ -129,8 +131,7 @@ namespace switching
         std::atomic<size_t> service_time;
         const size_t arrival_time;
 
-        const uint32_t id;
-        static uint32_t id_counter;
+        uint32_t id;
 
         bool virgin = true;
     };

@@ -8,38 +8,6 @@
 
 #include "switching.hpp"
 
-class timer : public switching::thread_controller
-{
-public:
-    struct timer_entry
-    {
-        timer_entry(const Parser::Process& process, switching::user_t* user):
-        process(process), user(user) {}
-        Parser::Process process;
-        switching::user_t* user;
-    };
-    timer(switching::scheduler* scheduler, const std::vector<timer_entry>& data):
-    scheduler(scheduler), data(data) 
-    {
-        this->create_thread();
-    }
-
-private:
-    switching::scheduler* scheduler;
-    const std::vector<timer_entry>& data;
-    size_t counter = 1;
-    virtual void cycle() override
-    {
-        for(const timer_entry& entry : data)
-        {
-            if(entry.process.arrivalTime == counter)
-                scheduler->register_process(entry.user, entry.process.arrivalTime, entry.process.serviceTime);
-        }
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        counter++;
-    }
-};
-
 int main(int argc, char const *argv[])
 {
     std::string inputFileName = "input.txt";
@@ -73,20 +41,38 @@ int main(int argc, char const *argv[])
     switching::scheduler scheduler(parser_data.timeQuantum, [&](std::string userName, int pID, Writer::output_action action){
         writer.fileOutput(userName, pID, action);
     });
-
-    std::vector<timer::timer_entry> entries = {};
+    struct timer_entry
+    {
+        timer_entry(const Parser::Process& process, switching::user_t* user):
+        process(process), user(user) {}
+        Parser::Process process;
+        switching::user_t* user;
+    };
+    std::vector<timer_entry> entries = {};
     for(const Parser::User& user : parser_data.users)
     {
         switching::user_t * ptr = scheduler.register_user(user.name);
         for(const Parser::Process& process : user.processes)
-            entries.push_back(timer::timer_entry(process, ptr));
+            entries.push_back(timer_entry(process, ptr));
     }
-    timer scheduler_timer(&scheduler, entries);
     writer.set_offset();
-    scheduler_timer.run();
     scheduler.run();
+    size_t counter = 1;
+    size_t registered = 0;
+    while(entries.size() > registered)
+    {
+        for(const timer_entry& entry : entries)
+        {
+            if(entry.process.arrivalTime == counter)
+            {
+                scheduler.register_process(entry.user, entry.process.arrivalTime, entry.process.serviceTime);
+                registered++;
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        counter++;
+    }
     scheduler.wait_for_done();
-    scheduler_timer.terminate();
 
     return 0;
 }

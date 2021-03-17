@@ -102,15 +102,14 @@ namespace switching
     //********************************PROCESS HANDLING********************************
     //********************************************************************************
     
-    uint32_t process_t::id_counter = 0;
-    
     process_t::process_t(user_t* user, size_t arrival_time, size_t service_time):
-        user(user), id(id_counter++), arrival_time(arrival_time), service_time(service_time), virgin(true)
+        user(user), arrival_time(arrival_time), service_time(service_time), virgin(true)
     {
         if(this->user == nullptr)
             throw exceptions::null_pointer_error();
         
         this->create_thread();
+        this->id = user->increment_process_id();
     }
     process_t::~process_t()
     {
@@ -181,8 +180,16 @@ namespace switching
 
         std::unique_lock<std::mutex> lck(scheduling_mutex);
         process_t * process = new process_t(this->users[index], arrival_time, service_time);
-        processes.push_back(process);
+        this->processes.push_back(process);
+
+        // size_t i = 0;
+        // this->processes.reserve(this->processes.size()+1);
+        // for(; i < this->processes.size() && this->processes[i]->get_arrival_time() < service_time; i++);
+        // this->processes.insert(this->processes.begin() + i, process);
         this->users[index]->increment_registered_processes();
+
+        // if(this->processes[this->current_process]->get_arrival_time() < service_time)
+        //     this->current_process = this->processes.size()-1;
 
         this->update_quantums();
 
@@ -257,7 +264,6 @@ namespace switching
         this->current_process = this->current_process >= process_count ? 0 : this->current_process;
 
         process_t* cp = this->processes[this->current_process];
-        s_lck.unlock();
 
         cp->run();
         if(cp->is_virgin())
@@ -265,12 +271,13 @@ namespace switching
             this->log(cp->get_user()->get_name(), cp->get_id(), Writer::output_action::P_START);
             cp->set_virgin(false);
         }
-        else
-            this->log(cp->get_user()->get_name(), cp->get_id(), Writer::output_action::P_RESUME);
+        this->log(cp->get_user()->get_name(), cp->get_id(), Writer::output_action::P_RESUME);
 
-        std::this_thread::sleep_for(time_unit_t(cp->get_user()->get_burst()));
+        std::this_thread::sleep_for(time_unit_t(cp->get_user()->get_burst() > cp->get_service_time() ? cp->get_service_time() : cp->get_user()->get_burst()));
 
         cp->pause();
+        s_lck.unlock();
+
         this->log(cp->get_user()->get_name(), cp->get_id(), Writer::output_action::P_PAUSE);
         if(cp->get_service_time() == 0)
         {
