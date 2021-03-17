@@ -1,22 +1,47 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
+#define DEBUG
+#define LOG_DEBUG (MSG) std::cout << "[DEBUG] " << MSG << "\n";
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <sstream>
 
-#include "switching.hpp"
-
 class Parser
 {
 private:
+    struct Process
+    {
+        uint32_t arrivalTime = 0;
+        uint32_t serviceTime = 0;
+    };
+
+    struct User
+    {
+        std::string name;
+        std::vector<Process> processes;
+        uint32_t processCount = 0;
+    };
+
+    struct Data
+    {
+        std::vector<User> users;
+        uint32_t timeQuantum = 0;
+    };
+
     std::ifstream inputFile;
+    std::string fileName;
+    Data data;
 
 public:
-    Parser(){}
+    Parser(std::string FileName)
+    {
+        fileName = FileName;
+    }
 
-    void openFile(std::string fileName)
+    void parse()
     {
         inputFile.open(fileName);
 
@@ -24,59 +49,70 @@ public:
         {
             throw "ERROR: Could not read from file";
         }
-    }
 
-    uint32_t getTimeQuantum()
-    {
-        uint32_t timeQuantum = 0;
+        //Read file, store integers in vector, close file
         std::string timeQuantumStr;
         getline(inputFile, timeQuantumStr);
 
-        timeQuantum = std::stoi(timeQuantumStr);
-        std::cout << "Time Quantum: " << timeQuantum << '\n';
+        data.timeQuantum = std::stoi(timeQuantumStr);
 
-        return timeQuantum;
-    }
+#ifdef DEBUG
+        std::cout << "DEBUG Time Quantum: " << data.timeQuantum << std::endl;
+#endif
 
-    void parse(std::vector<switching::user_t> &userList, switching::scheduler &scheduler)
-    {
-        //Read file, store integers in vector, close file
         std::string line;
-        std::string userName;
         std::string processCountStr;
         while (getline(inputFile, line))
         {
+            User user;
             std::stringstream strStream(line);
 
-            strStream >> userName;
-            switching::user_t * tempUser = scheduler.register_user(userName);
-            userList.push_back(*tempUser);
+            strStream >> user.name;
 
             strStream >> processCountStr;
-            u_int32_t processCount = std::stoi(processCountStr);
-            userList.back().set_registered_processes(processCount);
+#ifdef DEBUG
+            std::cout << "DEBUG Process Count String: " << std::stoi(processCountStr) << std::endl;
+#endif
+            user.processCount = std::stoi(processCountStr);
 
-            std::cout << "User Name: " << userName << '\n';
-            std::cout << "  Process Count: " << processCount << '\n';
+#ifdef DEBUG
+            std::cout << "DEBUG User Name: " << user.name << std::endl;
+            std::cout << "DEBUG   Process Count: " << user.processCount << std::endl;
+#endif
 
-            for (int i = 0; i < processCount; i++) {
+            for (int i = 0; i < user.processCount; i++)
+            {
                 getline(inputFile, line);
 
                 strStream.str("");
                 strStream.clear();
                 strStream << line;
 
+                Process process;
                 std::string arrivalTimeStr;
                 std::string serviceTimeStr;
 
                 strStream >> arrivalTimeStr;
                 strStream >> serviceTimeStr;
 
-                scheduler.register_process(&userList.back(), std::stoi(arrivalTimeStr), std::stoi(serviceTimeStr));
+                process.arrivalTime = std::stoi(arrivalTimeStr);
+                process.serviceTime = std::stoi(serviceTimeStr);
 
-                std::cout << "      Process: " << arrivalTimeStr << ", " << serviceTimeStr << std::endl;
+                user.processes.push_back(process);
+
+#ifdef DEBUG
+                std::cout << "DEBUG       Process: " << process.arrivalTime << ", " << process.serviceTime << std::endl;
+#endif
+
             }
+            data.users.push_back(user);
         }
+        inputFile.close();
+    }
+
+    Data &getData()
+    {
+        return data;
     }
 };
 
