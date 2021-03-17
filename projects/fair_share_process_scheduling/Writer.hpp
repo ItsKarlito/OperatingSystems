@@ -23,6 +23,7 @@
 class Writer
 {
 public:
+    //actions that a process can do that we will output to file
     enum output_action
     {
         P_START,
@@ -31,6 +32,7 @@ public:
         P_FINISH
     };
 
+    //function call to output to file
     typedef std::function<void(std::string userName, int pID, output_action action)> writerFunctor_t;
 
 private:
@@ -38,6 +40,7 @@ private:
     size_t offset = 0;
 
 private:
+    //getting the current time, required by writer class itself
     size_t get_current_time()
     {
         return time(NULL);
@@ -54,6 +57,7 @@ public:
             outputFile.close();
     }
 
+    //offset required so that execution time starts at time 1 and not 0
     void set_offset()
     {
         this->offset = this->get_current_time();
@@ -73,6 +77,7 @@ public:
         }
     }
 
+    //function call user by scheduler to output to file
     void fileOutput(std::string userName, int pID, output_action action)
     {
         if (!outputFile.is_open())
@@ -81,10 +86,11 @@ public:
             return;
         }
 
-        long int currentTime = this->get_current_time() - this->offset +1;
+        long int currentTime = this->get_current_time() - this->offset +1; //get current time at which the function is called
 
-        outputFile << "Time " << currentTime << ", User " << userName << ", Process " << pID;
+        outputFile << "Time " << currentTime << ", User " << userName << ", Process " << pID; //output to file time, user, and process information
         std::cout << "Time " << currentTime << ", User " << userName << ", Process " << pID;
+        //to output the action that was performed, check the action required
         switch(action)
         {
             case P_START:
