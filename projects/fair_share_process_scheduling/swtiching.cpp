@@ -60,6 +60,8 @@ namespace switching
         this->thread = std::thread([&](){
             while(this->alive)
             {
+                // Wait until the condition variable has been set to not
+                // IDLE
                 std::unique_lock<std::mutex> lck(this->mtx);
                 while(this->status == status_t::IDLE) cv.wait(lck);
                 lck.unlock();
@@ -126,6 +128,7 @@ namespace switching
 
     void process_t::cycle()
     {
+        // Just count down your service time, pause when done
         if(this->service_time > 0)
         {
             this->service_time--;
@@ -157,6 +160,7 @@ namespace switching
 
     scheduler::~scheduler()
     {
+        // Make sure no threads nor memory spaces are left unchecked
         this->terminate();
         for(user_t * user : this->users)
             delete user;
@@ -175,14 +179,17 @@ namespace switching
     process_t * scheduler::register_process(user_t * user, size_t arrival_time, size_t service_time)
     {
         int32_t index = 0;
+
+        // Make sure the user already exists before registering a process
         if((index = find_user(user)) < 0)
             throw exceptions::invalid_user();
 
         std::unique_lock<std::mutex> lck(scheduling_mutex);
         process_t * process = new process_t(this->users[index], arrival_time, service_time);
         this->processes.push_back(process);
-        this->users[index]->increment_registered_processes();
 
+        // Update your users processes and quantums.
+        this->users[index]->increment_registered_processes();
         this->update_quantums();
 
         return process;
@@ -190,6 +197,8 @@ namespace switching
     void scheduler::remove_process(process_t * process)
     {
         int32_t index = 0;
+
+        //Make sure the process already exists before deleting it
         if((index = find_process(process)) < 0)
             throw exceptions::invalid_user();
         
@@ -228,6 +237,9 @@ namespace switching
         size_t pc = this->processes.size();
         if(pc == 0)
             return;
+
+        // Only count the users that are currently
+        // doing jobs for the quantum calculation
         size_t active_users = 0;
         for(user_t *u : this->users)
         {
@@ -241,8 +253,11 @@ namespace switching
         for(user_t *u : this->users)
         {
             size_t rp = u->get_registered_processes();
+
+            // If the user has no processes, no point in updating it
             if(rp < 1)
                 continue;
+
             u->update_quantum(new_quantum < 1 ? 1 : new_quantum);
         }
     }
@@ -266,6 +281,8 @@ namespace switching
         process_t* cp = this->processes[this->current_process];
 
         cp->run();
+
+        //Check if process has been run in the past, if so, send a start action
         if(cp->is_virgin())
         {
             this->log(cp->get_user()->get_name(), cp->get_id(), Writer::output_action::P_START);
@@ -273,12 +290,15 @@ namespace switching
         }
         this->log(cp->get_user()->get_name(), cp->get_id(), Writer::output_action::P_RESUME);
 
+        //Wait out the process burst
         std::this_thread::sleep_for(time_unit_t(cp->get_user()->get_burst() > cp->get_service_time() ? cp->get_service_time() : cp->get_user()->get_burst()));
 
         cp->pause();
         s_lck.unlock();
 
         this->log(cp->get_user()->get_name(), cp->get_id(), Writer::output_action::P_PAUSE);
+
+        //If the process is done, remove it
         if(cp->get_service_time() == 0)
         {
             this->remove_process(cp);
