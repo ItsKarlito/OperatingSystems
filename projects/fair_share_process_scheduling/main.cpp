@@ -10,6 +10,7 @@
 
 int main(int argc, char const *argv[])
 {
+    //Process CLI arguments, open file, check if successful
     std::string inputFileName = "input.txt";
     if (argc == 2)
     {
@@ -26,6 +27,7 @@ int main(int argc, char const *argv[])
         output_path = inputFileName.substr(0, slash_index + 1) + output_path;
     Writer writer;
 
+    //Parse file and setup writer//Parse file and setup writer
     try
     {
         parser.parse();
@@ -37,6 +39,7 @@ int main(int argc, char const *argv[])
         return 1;
     }
 
+    //Transfer parsed data to the scheduler
     Parser::Data parser_data = parser.getData();
     switching::scheduler scheduler(parser_data.timeQuantum, [&](std::string userName, int pID, Writer::output_action action){
         writer.fileOutput(userName, pID, action);
@@ -55,8 +58,8 @@ int main(int argc, char const *argv[])
         for(const Parser::Process& process : user.processes)
             entries.push_back(timer_entry(process, ptr));
     }
-    writer.set_offset();
-    scheduler.run();
+    writer.set_offset(); //sets the unix time reference
+    scheduler.run(); //run the scheduler
     size_t counter = 1;
     size_t registered = 0;
     while(entries.size() > registered)
@@ -72,7 +75,7 @@ int main(int argc, char const *argv[])
         std::this_thread::sleep_for(std::chrono::seconds(1));
         counter++;
     }
-    scheduler.wait_for_done();
+    scheduler.wait_for_done(); //wait for scheduler to finish
 
     return 0;
 }
