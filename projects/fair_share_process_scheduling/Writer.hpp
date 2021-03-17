@@ -48,6 +48,11 @@ public:
     {
         this->set_offset(0);
     }
+    ~Writer()
+    {
+        if(outputFile.is_open())
+            outputFile.close();
+    }
 
     void set_offset()
     {
