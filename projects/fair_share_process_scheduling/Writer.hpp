@@ -76,7 +76,7 @@ public:
             return;
         }
 
-        long int currentTime = this->get_current_time() - this->offset;
+        long int currentTime = this->get_current_time() - this->offset +1;
 
         outputFile << "Time " << currentTime << ", User " << userName << ", Process " << pID;
         std::cout << "Time " << currentTime << ", User " << userName << ", Process " << pID;

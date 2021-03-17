@@ -65,9 +65,9 @@ namespace switching
         void update_quantum(size_t quantum);                                                            // Updates the quantum (and burst)
 
     private:
-        size_t burst;
-        size_t quantum;
-        size_t registered_processes;
+        size_t burst = 0;
+        size_t quantum = 0;
+        size_t registered_processes = 0;
         const uint32_t id;
         static uint32_t id_counter;
         std::string name;
@@ -125,14 +125,14 @@ namespace switching
         bool is_virgin();
 
     private:
-        user_t* user;
+        user_t* user = nullptr;
         std::atomic<size_t> service_time;
         const size_t arrival_time;
 
         const uint32_t id;
         static uint32_t id_counter;
 
-        bool virgin;
+        bool virgin = true;
     };
 
     //*******************************************************************************
@@ -145,6 +145,7 @@ namespace switching
         typedef std::vector<process_t*> processes_t;
 
     private:
+        std::mutex scheduling_mutex;
         users_t users;
         processes_t processes;
 

@@ -1,8 +1,8 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
-#define DEBUG
-#define LOG_DEBUG (MSG) std::cout << "[DEBUG] " << MSG << "\n";
+// #define DEBUG
+// #define LOG_DEBUG (MSG) std::cout << "[DEBUG] " << MSG << "\n";
 
 #include <iostream>
 #include <fstream>
@@ -11,29 +11,28 @@
 
 class Parser
 {
-private:
+public:    
     struct Process
     {
         uint32_t arrivalTime = 0;
         uint32_t serviceTime = 0;
     };
-
     struct User
     {
         std::string name;
         std::vector<Process> processes;
         uint32_t processCount = 0;
     };
-
     struct Data
     {
         std::vector<User> users;
         uint32_t timeQuantum = 0;
     };
 
+private:
+    Data data;
     std::ifstream inputFile;
     std::string fileName;
-    Data data;
 
 public:
     Parser(std::string FileName)

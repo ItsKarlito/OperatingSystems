@@ -149,7 +149,7 @@ namespace switching
     //*******************************SCHEDULE HANDLING*******************************
     //*******************************************************************************
     
-    scheduler::scheduler(size_t quantum, Writer::writerFunctor_t logger): quantum(quantum), logger(logger), current_process(0)
+    scheduler::scheduler(size_t quantum, Writer::writerFunctor_t logger): quantum(quantum), logger(logger), current_process(0), done(false)
     {
         this->create_thread();
     }
@@ -168,6 +168,7 @@ namespace switching
     user_t * scheduler::register_user(const std::string &name)
         {
             user_t * user = new user_t(name, this->quantum);
+            std::unique_lock<std::mutex> lck(scheduling_mutex);
             this->users.push_back(user);
             return user;
         }
@@ -178,6 +179,7 @@ namespace switching
         if((index = find_user(user)) < 0)
             throw exceptions::invalid_user();
 
+        std::unique_lock<std::mutex> lck(scheduling_mutex);
         process_t * process = new process_t(this->users[index], arrival_time, service_time);
         processes.push_back(process);
         this->users[index]->increment_registered_processes();
@@ -192,6 +194,7 @@ namespace switching
         if((index = find_process(process)) < 0)
             throw exceptions::invalid_user();
         
+        std::unique_lock<std::mutex> lck(scheduling_mutex);
         this->processes[index]->get_user()->decrement_registered_processes();
         delete this->processes[index];
         this->processes.erase(this->processes.begin() + index);
@@ -201,6 +204,7 @@ namespace switching
 
     int32_t scheduler::find_user(user_t * user)
     {
+        std::unique_lock<std::mutex> lck(scheduling_mutex);
         for(int32_t i = 0; i < this->users.size(); i++)
             if(*this->users[i] == *user)
                 return i;
@@ -208,6 +212,7 @@ namespace switching
     }
     int32_t scheduler::find_process(process_t * process)
     {
+        std::unique_lock<std::mutex> lck(scheduling_mutex);
         for(int32_t i = 0; i < this->processes.size(); i++)
             if(*this->processes[i] == *process)
                 return i;
@@ -238,6 +243,7 @@ namespace switching
     void scheduler::cycle()
     {
         std::unique_lock<std::mutex> lck(this->done_mtx);
+        std::unique_lock<std::mutex> s_lck(scheduling_mutex);
         size_t process_count = this->processes.size();
         this->done = process_count == 0;
         done_cv.notify_all();
@@ -251,6 +257,7 @@ namespace switching
         this->current_process = this->current_process >= process_count ? 0 : this->current_process;
 
         process_t* cp = this->processes[this->current_process];
+        s_lck.unlock();
 
         cp->run();
         if(cp->is_virgin())
