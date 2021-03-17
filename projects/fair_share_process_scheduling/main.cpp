@@ -6,7 +6,7 @@
 #include "Writer.hpp"
 #include "timer.hpp"
 
-#include "scheduler.hpp"
+#include "switching.hpp"
 
 int main(int argc, char const *argv[])
 {
