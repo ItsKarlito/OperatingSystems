@@ -1,6 +1,8 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
+//#define DEBUG
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -8,7 +10,7 @@
 
 class Parser
 {
-private:    
+private:
     struct Process
     {
         uint32_t arrivalTime;
@@ -19,6 +21,7 @@ private:
     {
         std::string name;
         std::vector<Process> processes;
+        uint32_t processCount;
     };
 
     struct Data
@@ -30,7 +33,7 @@ private:
     std::ifstream inputFile;
     std::string fileName;
     Data data;
-    
+
 public:
     Parser(std::string FileName)
     {
@@ -38,7 +41,7 @@ public:
     }
 
     void parse()
-    {   
+    {
         inputFile.open(fileName);
 
         if (!inputFile.is_open())
@@ -52,6 +55,10 @@ public:
 
         data.timeQuantum = std::stoi(timeQuantumStr);
 
+#ifdef DEBUG
+        std::cout << "Time Quantum: " << data.timeQuantum << std::endl;
+#endif
+
         std::string line;
         std::string processCountStr;
         while (getline(inputFile, line))
@@ -63,9 +70,14 @@ public:
             data.users.push_back(user);
 
             strStream >> processCountStr;
-            u_int32_t processCount = std::stoi(processCountStr);
+            user.processCount = std::stoi(processCountStr);
 
-            for (int i = 0; i < processCount; i++)
+#ifdef DEBUG
+            std::cout << "User Name: " << user.name << std::endl;
+            std::cout << "  Process Count: " << user.processCount << std::endl;
+#endif
+
+            for (int i = 0; i < user.processCount; i++)
             {
                 getline(inputFile, line);
 
@@ -84,15 +96,20 @@ public:
                 process.serviceTime = std::stoi(serviceTimeStr);
 
                 user.processes.push_back(process);
+
+#ifdef DEBUG
+                std::cout << "      Process: " << process.arrivalTime << ", " << process.serviceTime << std::endl;
+#endif
+
             }
         }
         inputFile.close();
     }
 
-    Data& getData() {
+    Data &getData()
+    {
         return data;
     }
-    
 };
 
 #endif

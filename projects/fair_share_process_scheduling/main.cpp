@@ -28,14 +28,14 @@ int main(int argc, char const *argv[])
         return EXIT_FAILURE;
     }
  
-    std::cout << "Time Quantum: " << parser.getData().timeQuantum << '\n';
+    std::cout << std::endl << "Time Quantum: " << parser.getData().timeQuantum << '\n';
 
     for (int i = 0; i < parser.getData().users.size(); i++)
     {
-        uint32_t numProcesses = parser.getData().users.at(i).processes.size();
+        uint32_t processCount = parser.getData().users.at(i).processCount;
         std::cout << "User Name: " << parser.getData().users.at(i).name << '\n';
-        std::cout << "  Process Count: " << numProcesses << '\n';
-        for (int j = 0; j < numProcesses; j++) {
+        std::cout << "  Process Count: " << parser.getData().users.at(i).processCount << '\n';
+        for (int j = 0; j < processCount; j++) {
             std::cout << "      Process: " << parser.getData().users.at(i).processes.at(j).arrivalTime << ", " << parser.getData().users.at(i).processes.at(j).serviceTime << '\n';
         }
     }
