@@ -16,19 +16,19 @@
 
 namespace switching 
 {
-    //***************************************
-    //****************GLOBALS****************
-    //***************************************
-    typedef std::chrono::seconds time_unit_t;                                                           //Define default time unit (currently set to seconds)
+    //*******************************************************************************
+    //************************************GLOBALS************************************
+    //*******************************************************************************
+    typedef std::chrono::seconds time_unit_t;                                                           // Define default time unit (currently set to seconds)
 
-    enum status_t                                                                                       //Used to define process status (shared by thread_controller)
+    enum status_t                                                                                       // Used to define process status (shared by thread_controller)
     {
         RUNNING,
         IDLE,
         TERMINATED
     };
 
-    class exceptions                                                                                    //Custom exceptions for process, user and data handling
+    class exceptions                                                                                    // Custom exceptions for process, user and data handling
     {
     public:
         struct null_pointer_error : public std::exception
@@ -40,9 +40,9 @@ namespace switching
 
     };
 
-    //***************************************
-    //*************USER HANDLING*************
-    //***************************************
+    //*******************************************************************************
+    //*********************************USER HANDLING*********************************
+    //*******************************************************************************
     class user_t
     {
     public:
@@ -73,9 +73,9 @@ namespace switching
         std::string name;
     };
 
-    //***************************************
-    //************THREAD HANDLING************
-    //***************************************
+    //*******************************************************************************
+    //********************************THREAD HANDLING********************************
+    //*******************************************************************************
     class thread_controller
     {
     protected:
@@ -100,9 +100,9 @@ namespace switching
         std::condition_variable cv;
     };
 
-    //***************************************
-    //***********PROCESS HANDLING************
-    //***************************************
+    //********************************************************************************
+    //********************************PROCESS HANDLING********************************
+    //********************************************************************************
     class process_t: public thread_controller
     {
     public:
@@ -135,9 +135,9 @@ namespace switching
         bool virgin;
     };
 
-    //***************************************
-    //***********SCHEDULE HANDLING***********
-    //***************************************
+    //*******************************************************************************
+    //*******************************SCHEDULE HANDLING*******************************
+    //*******************************************************************************
     class scheduler: public thread_controller
     {
     public:
@@ -156,6 +156,7 @@ namespace switching
         std::condition_variable done_cv;
         std::mutex done_mtx;
         bool done;
+
     public:
         scheduler(size_t quantum, Writer::writerFunctor_t logger);
         scheduler(size_t quantum);
@@ -173,7 +174,6 @@ namespace switching
         const processes_t& get_processes() const;
 
         const size_t get_quantum() const;
-
         void update_quantums();                                                                             // Updates the quantums for all the users
 
         virtual void cycle() override;
