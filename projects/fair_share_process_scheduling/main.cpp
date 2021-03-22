@@ -3,44 +3,21 @@
 #include <fstream>
 
 #include "parser.hpp"
-#include "writter.hpp"
+#include "Writer.hpp"
 #include "timer.hpp"
 
-#include "scheduler.hpp"
+#include "switching.hpp"
 
 int main(int argc, char const *argv[])
 {
-    // Scheduler use example
-    // switching::scheduler scheduler(10, [=](const std::string &msg){std::cout << msg << "\n";});
-    // switching::user_t * user = scheduler.register_user("A");
-    // switching::user_t * user2 = scheduler.register_user("B");
-    // scheduler.register_process(user, 0, 4);
-    // scheduler.register_process(user, 1, 4);
-    // scheduler.register_process(user2, 3, 4);
-    // scheduler.run();
-    // scheduler.wait_for_done();
-
-    std::vector<User> userList;
-    u_int32_t timeQuantum;
-
-    Timer<std::chrono::seconds> timer(1);
-
+    //Process CLI arguments, open file, check if successful
     std::string inputFileName = "input.txt";
     if (argc == 2)
     {
         inputFileName = (char *)argv[1];
     }
+    Parser parser(inputFileName);
 
-    try
-    {
-        Parser parser(inputFileName);
-        parser.parse(userList, timeQuantum);
-    }
-    catch (const char *exception)
-    {
-        std::cout << exception << std::endl;
-        return EXIT_FAILURE;
-    }
 
     std::string output_path = "output.txt";
     size_t slash_index = 0;
@@ -48,23 +25,57 @@ int main(int argc, char const *argv[])
         ((slash_index = inputFileName.rfind('/')) != std::string::npos) ||
         ((slash_index = inputFileName.rfind('\\')) != std::string::npos))
         output_path = inputFileName.substr(0, slash_index + 1) + output_path;
+    Writer writer;
 
-    Writter<std::chrono::seconds> writter(&timer);
+    //Parse file and setup writer//Parse file and setup writer
     try
     {
-        writter.openFile(output_path);
+        parser.parse();
+        writer.openFile(output_path);
     }
-    catch (const char *e)
+    catch(const std::exception &exception)
     {
-        std::cout << e << std::endl;
+        std::cout << "Error: " << exception.what() << std::endl;
+        return 1;
     }
 
-    timer.startTimer();
+    //Transfer parsed data to the scheduler
+    Parser::Data parser_data = parser.getData();
+    switching::scheduler scheduler(parser_data.timeQuantum, [&](std::string userName, int pID, Writer::output_action action){
+        writer.fileOutput(userName, pID, action);
+    });
+    struct timer_entry
+    {
+        timer_entry(const Parser::Process& process, switching::user_t* user):
+        process(process), user(user) {}
+        Parser::Process process;
+        switching::user_t* user;
+    };
+    std::vector<timer_entry> entries = {};
+    for(const Parser::User& user : parser_data.users)
+    {
+        switching::user_t * ptr = scheduler.register_user(user.name);
+        for(const Parser::Process& process : user.processes)
+            entries.push_back(timer_entry(process, ptr));
+    }
+    writer.set_offset(); //sets the unix time reference
+    scheduler.run(); //run the scheduler
+    size_t counter = 1;
+    size_t registered = 0;
+    while(entries.size() > registered)
+    {
+        for(const timer_entry& entry : entries)
+        {
+            if(entry.process.arrivalTime == counter)
+            {
+                scheduler.register_process(entry.user, entry.process.arrivalTime, entry.process.serviceTime);
+                registered++;
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        counter++;
+    }
+    scheduler.wait_for_done(); //wait for scheduler to finish
 
-    writter.fileOutput("B", 1, P_START);
-    writter.fileOutput("A", 69, P_FINISH);
-
-    //timer.stopTimer();
-
-    return EXIT_SUCCESS;
+    return 0;
 }

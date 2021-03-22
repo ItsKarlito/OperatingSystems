@@ -1,73 +1,122 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
+// #define DEBUG
+// #define LOG_DEBUG (MSG) std::cout << "[DEBUG] " << MSG << "\n";
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <sstream>
 
-#include "user.h"
-
 class Parser
 {
+public:
+    //process related variables
+    struct Process
+    {
+        uint32_t arrivalTime = 0;
+        uint32_t serviceTime = 0;
+    };
+    //user related variables
+    struct User
+    {
+        std::string name;
+        std::vector<Process> processes;
+        uint32_t processCount = 0;
+    };
+    //data obtained by parser
+    struct Data
+    {
+        std::vector<User> users;
+        uint32_t timeQuantum = 0;
+    };
+
 private:
+    Data data;
     std::ifstream inputFile;
+    std::string fileName;
 
 public:
-    Parser(std::string fileName)
+    //Constructor with input file path
+    Parser(std::string FileName)
     {
-        inputFile.open(fileName);
+        fileName = FileName;
+    }
+
+    //Parsing the input file assuming proper file structure
+    void parse()
+    {
+        inputFile.open(fileName); //open the input file
 
         if (!inputFile.is_open())
         {
             throw "ERROR: Could not read from file";
         }
-    }
 
-    void parse(std::vector<User> &userList, u_int32_t &timeQuantum)
-    {
-        //Read file, store integers in vector, close file
         std::string timeQuantumStr;
-        getline(inputFile, timeQuantumStr);
+        getline(inputFile, timeQuantumStr); //get time quantum from first line
 
-        timeQuantum = std::stoi(timeQuantumStr);
-        std::cout << "Time Quantum: " << timeQuantum << '\n';
+        data.timeQuantum = std::stoi(timeQuantumStr);
+
+#ifdef DEBUG
+        std::cout << "DEBUG Time Quantum: " << data.timeQuantum << std::endl;
+#endif
 
         std::string line;
-        std::string userName;
         std::string processCountStr;
+        //Obtain 1 line at a time
         while (getline(inputFile, line))
         {
-            std::stringstream strStream(line);
+            User user;
+            std::stringstream strStream(line); // first line of the loop is the user name and number of processes
 
-            strStream >> userName;
-            User tempUser(userName);
-            userList.push_back(tempUser);
+            strStream >> user.name;
 
             strStream >> processCountStr;
-            u_int32_t processCount = std::stoi(processCountStr);
+#ifdef DEBUG
+            std::cout << "DEBUG Process Count String: " << std::stoi(processCountStr) << std::endl;
+#endif
+            user.processCount = std::stoi(processCountStr);
 
-            std::cout << "User Name: " << userName << '\n';
-            std::cout << "  Process Count: " << processCount << '\n';
-
-            for (int i = 0; i < processCount; i++) {
+#ifdef DEBUG
+            std::cout << "DEBUG User Name: " << user.name << std::endl;
+            std::cout << "DEBUG   Process Count: " << user.processCount << std::endl;
+#endif
+            //loop through all processes information for 1 user
+            for (int i = 0; i < user.processCount; i++)
+            {
                 getline(inputFile, line);
 
                 strStream.str("");
                 strStream.clear();
                 strStream << line;
 
+                Process process;
                 std::string arrivalTimeStr;
                 std::string serviceTimeStr;
 
                 strStream >> arrivalTimeStr;
                 strStream >> serviceTimeStr;
 
-                tempUser.addProcess(std::stoi(arrivalTimeStr), std::stoi(serviceTimeStr));
+                process.arrivalTime = std::stoi(arrivalTimeStr);
+                process.serviceTime = std::stoi(serviceTimeStr);
 
-                std::cout << "      Process " << tempUser.getProcesses().back()->getId() << ": " << tempUser.getProcesses().back()->getReadyTime() << ", " << tempUser.getProcesses().back()->getServiceTime() << '\n';
+                user.processes.push_back(process); //add process to user
+
+#ifdef DEBUG
+                std::cout << "DEBUG       Process: " << process.arrivalTime << ", " << process.serviceTime << std::endl;
+#endif
+
             }
+            data.users.push_back(user); //add user to list of users
         }
+        inputFile.close();
+    }
+
+    Data &getData()
+    {
+        return data;
     }
 };
 
