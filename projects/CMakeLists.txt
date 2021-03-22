@@ -1,1 +1,3 @@
 add_project(merge_sort_multithreading)
+add_project(fair_share_process_scheduling)
+
