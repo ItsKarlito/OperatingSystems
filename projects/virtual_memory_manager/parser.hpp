@@ -127,23 +127,25 @@ class Parser
             std::string tempVal;
             strStream >> tempVal;
             currentCommand = commandConvert(tempVal);
-            cmd.name = currentCommand;
 
             if(currentCommand == STORE)
             {
+                cmd.name = currentCommand;
                 strStream >> tempVal;
                 cmd.id = std::stoi(tempVal);
                 strStream >> tempVal;
                 cmd.value = std::stoi(tempVal);
+
+                cData.addCmd(cmd);
             }
             else if(currentCommand == RELEASE || currentCommand == LOOKUP)
             {
                 strStream >> tempVal;
                 cmd.id = std::stoi(tempVal);
                 cmd.value = 0;
+                
+                cData.addCmd(cmd);
             }
-
-            
             
         }
     }
