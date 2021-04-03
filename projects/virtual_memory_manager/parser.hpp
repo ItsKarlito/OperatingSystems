@@ -10,8 +10,14 @@
 
 class Parser
 {
-    public:
-    enum command_type {STORE, LOOKUP, RELEASE, ERROR};
+public:
+    enum command_type
+    {
+        STORE,
+        LOOKUP,
+        RELEASE,
+        ERROR
+    };
 
     struct Process
     {
@@ -48,44 +54,44 @@ class Parser
 #ifdef PARSER_DEBUG
         void printCmdData()
         {
-            std::cout << "Printing command data: \n";
-            std::cout << "Current command: " << currentCmd << std::endl;
-            for(int i = 0; i < commands.size(); i++)
+            std::cout << "COMMAND DATA: \n";
+            std::cout << "  Current command: " << currentCmd << std::endl;
+            for (int i = 0; i < commands.size(); i++)
             {
-                std::cout << "Command " << i << " : ";
-                switch(commands.at(i).name)
+                std::cout << "  Command " << i << ": ";
+                switch (commands.at(i).name)
                 {
-                    case STORE:
-                        std::cout << "Store, " << commands.at(i).id << ", " << commands.at(i).value << std::endl;
-                        break;
-                    case RELEASE:
-                        std::cout << "Release, " << commands.at(i).id << std::endl;
-                        break;
-                    case LOOKUP:
-                        std::cout << "Lookup, " << commands.at(i).id << std::endl;
-                        break;
-                    default:
-                        break;
+                case STORE:
+                    std::cout << "Store, " << commands.at(i).id << ", " << commands.at(i).value << std::endl;
+                    break;
+                case RELEASE:
+                    std::cout << "Release, " << commands.at(i).id << std::endl;
+                    break;
+                case LOOKUP:
+                    std::cout << "Lookup, " << commands.at(i).id << std::endl;
+                    break;
+                default:
+                    break;
                 }
             }
             std::cout << std::endl;
         }
 #endif
 
-        private:
+    private:
         std::vector<Command> commands;
         uint32_t currentCmd;
         std::mutex cmdMutex;
     };
 
     Parser(std::string filePath) : inputPath(filePath),
-                                    memconfigFileName("memconfig.txt"),
-                                    processFileName("processes.txt"),
-                                    commandsFileName("commands.txt") {}
+                                   memconfigFileName("memconfig.txt"),
+                                   processFileName("processes.txt"),
+                                   commandsFileName("commands.txt") {}
 
-    processData* getProcessData() { return &pData; }
+    processData *getProcessData() { return &pData; }
 
-    cmdData* getCmdData(){ return &cData; }
+    cmdData *getCmdData() { return &cData; }
 
     uint32_t parseMemConfig()
     {
@@ -97,9 +103,8 @@ class Parser
         }
 
         std::string numPages;
-        getline(memconfigFile,numPages);
+        getline(memconfigFile, numPages);
         return std::stoi(numPages);
-        
     }
 
     void parseProcess()
@@ -112,14 +117,14 @@ class Parser
         }
 
         std::string line;
-        getline(processFile,line);
+        getline(processFile, line);
         pData.numCores = std::stoi(line);
 
-        getline(processFile,line);
+        getline(processFile, line);
         pData.numProcess = std::stoi(line);
 
         std::stringstream strStream;
-        while(getline(processFile,line))
+        while (getline(processFile, line))
         {
             Process proc;
             strStream.str("");
@@ -148,7 +153,7 @@ class Parser
         std::string line;
         std::stringstream strStream;
 
-        while(getline(commandsFile,line))
+        while (getline(commandsFile, line))
         {
             Command cmd;
             command_type currentCommand;
@@ -160,7 +165,7 @@ class Parser
             strStream >> tempVal;
             currentCommand = commandConvert(tempVal);
 
-            if(currentCommand == STORE)
+            if (currentCommand == STORE)
             {
                 cmd.name = currentCommand;
                 strStream >> tempVal;
@@ -170,35 +175,36 @@ class Parser
 
                 cData.addCmd(cmd);
             }
-            else if(currentCommand == RELEASE || currentCommand == LOOKUP)
+            else if (currentCommand == RELEASE || currentCommand == LOOKUP)
             {
                 cmd.name = currentCommand;
                 strStream >> tempVal;
                 cmd.id = std::stoi(tempVal);
                 cmd.value = 0;
-                
+
                 cData.addCmd(cmd);
             }
-            
         }
     }
 #ifdef PARSER_DEBUG
     void printProcessData()
     {
-        std::cout << "Printing process data:\n";
-        std::cout << "Number of cores: " << pData.numCores << std::endl;
-        std::cout << "Number of processes: " << pData.numProcess << std::endl;
-        for(int i = 0; i < pData.processes.size(); i++)
+        std::cout << "PROCESS DATA:\n";
+        std::cout << "  Number of cores: " << pData.numCores << std::endl;
+        std::cout << "  Number of processes: " << pData.numProcess << std::endl;
+        for (int i = 0; i < pData.processes.size(); i++)
         {
-            std::cout << "Process " << i << " arrival and service times: " << pData.processes.at(i).arrivalTime << ", " << pData.processes.at(i).serviceTime << std::endl;
+            std::cout << "  Process " << i << " arrival and service times: " << pData.processes.at(i).arrivalTime << ", " << pData.processes.at(i).serviceTime << std::endl;
         }
         std::cout << std::endl;
     }
 #endif
 
-    ~Parser() {}
+    ~Parser()
+    {
+    }
 
-    private:
+private:
     std::ifstream memconfigFile;
     std::ifstream processFile;
     std::ifstream commandsFile;
@@ -213,12 +219,15 @@ class Parser
 
     command_type commandConvert(std::string cmd)
     {
-        if(cmd == "Store") return STORE;
-        else if(cmd == "Lookup") return LOOKUP;
-        else if(cmd == "Release") return RELEASE;
-        else return ERROR;
+        if (cmd == "Store")
+            return STORE;
+        else if (cmd == "Lookup")
+            return LOOKUP;
+        else if (cmd == "Release")
+            return RELEASE;
+        else
+            return ERROR;
     }
-
 };
 
 #endif
