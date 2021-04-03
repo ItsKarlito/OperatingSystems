@@ -11,7 +11,25 @@ int main(int argc, char const *argv[])
         inputFilePath = (char *)argv[1];
     }
     
+    Parser parser(inputFilePath);
+    uint32_t numPages;
 
+    try
+    {
+        numPages = parser.parseMemConfig();
+        parser.parseProcess();
+        parser.parseCommands();
+    }
+    catch(char const* e)
+    {
+        std::cout << "Error: " << e << '\n';
+    }
+
+    Parser::processData *pData = parser.getProcessData();
+    Parser::cmdData *cData = parser.getCmdData();
+
+    parser.printProcessData();
+    cData->printCmdData();
 
     return EXIT_SUCCESS;
 }
