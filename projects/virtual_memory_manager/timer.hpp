@@ -6,7 +6,7 @@
 #include <thread>
 #include <atomic>
 
-template <typename time_unit = std::chrono::seconds> //use template to indicate the time unit
+template <typename time_unit = std::chrono::milliseconds> //use template to indicate the time unit
 class Timer
 {
 private:
