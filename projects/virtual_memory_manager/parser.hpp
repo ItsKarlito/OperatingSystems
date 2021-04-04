@@ -128,21 +128,38 @@ public:
         getline(processFile, line);
         pData.numProcess = std::stoi(line);
 
-        std::stringstream strStream;
-        while (getline(processFile, line))
+        if(pData.numProcess < 0)
         {
-            Process proc;
-            strStream.str("");
-            strStream.clear();
-            strStream << line;
+            throw "ERROR: Number of processes cannot be negative";
+        }
 
-            std::string tempVal;
-            strStream >> tempVal;
-            proc.arrivalTime = std::stoi(tempVal);
-            strStream >> tempVal;
-            proc.serviceTime = std::stoi(tempVal);
+        std::stringstream strStream;
+        for(int i = 0; i < pData.numProcess; i++)
+        {
+            if(!processFile.eof())
+            {
+                getline(processFile, line);
+                Process proc;
+                strStream.str("");
+                strStream.clear();
+                strStream << line;
 
-            pData.processes.push_back(proc);
+                std::string tempVal;
+                strStream >> tempVal;
+                proc.arrivalTime = std::stoi(tempVal);
+                strStream >> tempVal;
+                proc.serviceTime = std::stoi(tempVal);
+
+                pData.processes.push_back(proc);
+            }
+            else
+            {
+                throw "ERROR: The number of processes provided is bigger than the number of arrival/service time pairs";
+            }
+        }
+        if(!processFile.eof())
+        {
+            throw "ERROR: The number of processes provided is smaller than the number of arrival/service time pairs";
         }
     }
 
