@@ -120,6 +120,11 @@ public:
         getline(processFile, line);
         pData.numCores = std::stoi(line);
 
+        if(pData.numCores < 1)
+        {
+            throw "ERROR: Number of cores must be at least 1";
+        }
+
         getline(processFile, line);
         pData.numProcess = std::stoi(line);
 
