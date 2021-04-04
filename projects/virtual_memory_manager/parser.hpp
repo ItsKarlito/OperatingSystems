@@ -29,14 +29,14 @@ public:
     {
         command_type name;
         uint32_t id;
-        uint32_t value;
+        int value;
     };
 
     struct processData
     {
         std::vector<Process> processes;
-        uint32_t numCores;
-        uint32_t numProcess;
+        int numCores;
+        int numProcess;
     };
 
     struct cmdData
