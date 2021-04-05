@@ -1,17 +1,16 @@
-#ifndef WRITTER_HPP
-#define WRITTER_HPP
+#ifndef WRITER_HPP_
+#define WRITER_HPP_
 
 #include <iostream>
 #include <fstream>
+#include <functional>
 #include <vector>
 #include <sstream>
+#include <ctime>
 
-#include "user.h"
 #include "timer.hpp"
 
 /*
-    TODO: implement current time retrieval
-
     Class writter creates and output to "output.txt"
     To output an action call:
         fileOutput(std::string userName, int pID, output_action action)
@@ -21,26 +20,51 @@
         output_action - public enum
 */
 
-enum output_action
+class Writer
 {
-    P_START,
-    P_RESUME,
-    P_PAUSE,
-    P_FINISH
-};
+public:
+    //actions that a process can do that we will output to file
+    enum output_action
+    {
+        P_START,
+        P_RESUME,
+        P_PAUSE,
+        P_FINISH
+    };
 
-template<typename time_unit = std::chrono::seconds>
-class Writter
-{
+    //function call to output to file
+    typedef std::function<void(std::string userName, int pID, output_action action)> writerFunctor_t;
+
 private:
     std::ofstream outputFile;
-    Timer<time_unit>* timer;
+    size_t offset = 0;
+
+private:
+    //getting the current time, required by writer class itself
+    size_t get_current_time()
+    {
+        return time(NULL);
+    }
 
 public:
-    Writter(Timer<time_unit>* newTimer)
+    Writer() 
     {
-        timer = newTimer;
-        
+        this->set_offset(0);
+    }
+    ~Writer()
+    {
+        if(outputFile.is_open())
+            outputFile.close();
+    }
+
+    //offset required so that execution time starts at time 1 and not 0
+    void set_offset()
+    {
+        this->offset = this->get_current_time();
+    }
+    void set_offset(size_t t)
+    { 
+        this->offset = t;
     }
 
     void openFile(std::string outputFilePath)
@@ -53,6 +77,7 @@ public:
         }
     }
 
+    //function call user by scheduler to output to file
     void fileOutput(std::string userName, int pID, output_action action)
     {
         if (!outputFile.is_open())
@@ -61,10 +86,11 @@ public:
             return;
         }
 
-        int currentTime = timer->getElapsedTime();
+        long int currentTime = this->get_current_time() - this->offset +1; //get current time at which the function is called
 
-        outputFile << "Time " << currentTime << ", User " << userName << ", Process " << pID;
+        outputFile << "Time " << currentTime << ", User " << userName << ", Process " << pID; //output to file time, user, and process information
         std::cout << "Time " << currentTime << ", User " << userName << ", Process " << pID;
+        //to output the action that was performed, check the action required
         switch(action)
         {
             case P_START:
