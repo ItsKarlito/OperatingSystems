@@ -25,11 +25,11 @@ That's it!, you can now build the project like usual. You'll find an executable 
 # TODO: General
 - [x] Add generic build system for projects
 
-## TODO: merge_sort_multithreading
+## ~~TODO: merge_sort_multithreading~~
 - [x] Add multithreading to merge sort
 - [x] Add file i/o support
 
-## TODO: fair_share_process_scheduling
+## ~~TODO: fair_share_process_scheduling~~
 - [x] Parser class
 - [x] Writer class
 - [x] Context switching class
