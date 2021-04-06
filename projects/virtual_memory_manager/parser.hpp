@@ -43,7 +43,21 @@ public:
     {
         Command getCommand()
         {
-            return commands.at(currentCmd++);
+            if(currentCmd < (commands.size() - 1))
+            {
+                return commands.at(currentCmd++);
+            }
+            else if(currentCmd == (commands.size() - 1))
+            {
+                uint32_t tempCurrent = currentCmd;
+                currentCmd = 0;
+                return commands.at(tempCurrent);
+            }
+            else
+            {
+                currentCmd = 0;
+                return commands.at(currentCmd);
+            }
         }
 
         void addCmd(Command cmd)
