@@ -65,6 +65,11 @@ public:
             commands.push_back(cmd);
         }
 
+        void deleteCmd()
+        {
+            commands.clear();
+        }
+
 #ifdef PARSER_DEBUG
         void printCmdData()
         {

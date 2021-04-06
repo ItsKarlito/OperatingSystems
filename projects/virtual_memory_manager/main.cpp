@@ -29,8 +29,8 @@ int main(int argc, char const *argv[])
         return EXIT_FAILURE;
     }
 
-    Parser::processData *pData = parser.getProcessData();
-    Parser::cmdData *cData = parser.getCmdData();
+    Parser::processData* pData = parser.getProcessData();
+    Parser::cmdData* cData = parser.getCmdData();
 
     std::cout << "MEM DATA: \n  Number of pages: " << numPages << "\n\n";
     parser.printProcessData();
