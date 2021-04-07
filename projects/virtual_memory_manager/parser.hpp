@@ -5,6 +5,7 @@
 #include <vector>
 #include <mutex>
 #include <sstream>
+#include <iostream>
 
 #define PARSER_DEBUG
 
@@ -21,8 +22,14 @@ public:
 
     struct Process
     {
+        uint32_t id;
         uint32_t arrivalTime;
         uint32_t serviceTime;
+
+        bool operator < (const Process& p) const
+        {
+            return(arrivalTime < p.arrivalTime);
+        }
     };
 
     struct Command
@@ -168,6 +175,8 @@ public:
                 proc.arrivalTime = std::stoi(tempVal);
                 strStream >> tempVal;
                 proc.serviceTime = std::stoi(tempVal);
+
+                proc.id = i+1;
 
                 pData.processes.push_back(proc);
             }

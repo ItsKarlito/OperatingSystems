@@ -4,9 +4,12 @@
 #include <chrono>
 #include <thread>
 #include <atomic>
+#include <queue>
+#include <algorithm>
 
 #include "parser.hpp"
 #include "writer.hpp"
+#include "timer.hpp"
 
 namespace scheduler
 {
@@ -25,9 +28,6 @@ namespace scheduler
     class thread_controller
     {
     protected:
-        static Parser::cmdData* commands;
-        static Writer::Writer* logger;
-
         virtual void cycle() = 0;
 
         void create_thread();
@@ -51,19 +51,25 @@ namespace scheduler
     class Process: public thread_controller
     {
     public:
-        Process(size_t service_time, uint32_t id, Writer::Writer* logger);
+        Process(size_t service_time, uint32_t id, Writer* logger, Parser::cmdData* cData, Timer<std::chrono::milliseconds>* timer);
         ~Process();
 
         size_t get_service_time() const;
         void set_service_time(size_t service_time);
+        void set_start_end_time();
 
         uint32_t get_id() const;
 
         virtual void cycle() override;
 
     private:
-        Writer::Writer* logger;
+        Parser::cmdData* commands;
+        Writer* logger;
+        Timer<std::chrono::milliseconds>* timer;
         std::atomic<size_t> service_time;
+        std::atomic<size_t> start_time;
+        std::atomic<size_t> end_time;
+        uint32_t commandTime;
         uint32_t id;
     };
 
@@ -71,12 +77,21 @@ namespace scheduler
     class Scheduler: public thread_controller
     {
     public:
-        Scheduler(Parser::cmdData* cData, Parser::processData* pData, Writer::Writer* logger);
+        Scheduler(Parser::cmdData* cData, Parser::processData* pData, Writer* logger, Timer<std::chrono::milliseconds>* timer);
         ~Scheduler();
+
+        void sortProcesses();
 
         virtual void cycle() override;
     private:
-        static Parser::processData* processes;
+        uint32_t numCores;
+        uint32_t numProcess;
+        std::queue<Parser::Process> processes;
+        
+        Parser::cmdData* commands;
+        Writer* logger;
+        Timer<std::chrono::milliseconds>* timer;
+        Parser::processData* pData;
     };
 }
 
