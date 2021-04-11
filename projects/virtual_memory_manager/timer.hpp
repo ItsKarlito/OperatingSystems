@@ -34,7 +34,7 @@ public:
         timerThread = std::thread([&]() {
             while (isRun)
             {
-                std::cout << elapsedTime << '\n';
+                //std::cout << elapsedTime << '\n';
                 std::this_thread::sleep_for(time_unit(delay)); //sleep for the indicated time frame
                 elapsedTime++;  //increase execution time
             }

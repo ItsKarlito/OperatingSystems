@@ -47,5 +47,9 @@ int main(int argc, char const *argv[])
         return EXIT_FAILURE;
     }
 
+    Timer<std::chrono::milliseconds> timer(1);
+    timer.startTimer();
+    scheduler::Scheduler sched(cData, pData, &writer, &timer);
+
     return EXIT_SUCCESS;
 }

@@ -37,6 +37,15 @@ public:
         command_type name;
         uint32_t id;
         int value;
+
+        void printCommand()
+        {
+            if(name == STORE) std::cout << "Store: ";
+            else if(name == LOOKUP) std::cout << "Lookup: ";
+            else std::cout << "Release: ";
+
+            std::cout << id << ", " << value << std::endl;
+        }
     };
 
     struct processData
