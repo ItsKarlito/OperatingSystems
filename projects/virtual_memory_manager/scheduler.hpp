@@ -6,6 +6,7 @@
 #include <atomic>
 #include <queue>
 #include <algorithm>
+#include <cstdlib>
 
 #include "parser.hpp"
 #include "writer.hpp"

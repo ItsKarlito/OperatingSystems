@@ -6,6 +6,7 @@
 
 int main(int argc, char const *argv[])
 {
+    srand(time(0));
     Writer writer;
     std::string inputFilePath = "./projects/virtual_memory_manager/";
     if (argc == 2)
