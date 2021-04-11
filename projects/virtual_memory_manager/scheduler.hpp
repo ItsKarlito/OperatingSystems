@@ -53,7 +53,7 @@ namespace scheduler
     class procT: public thread_controller
     {
     public:
-        procT(size_t service_time, uint32_t id, Writer* logger, Parser::cmdData* cData, Timer<std::chrono::milliseconds>* timer);
+        procT(size_t arrival_time, size_t service_time, uint32_t id, Writer* logger, Parser::cmdData* cData, Timer<std::chrono::milliseconds>* timer);
         ~procT();
 
         size_t get_service_time() const;

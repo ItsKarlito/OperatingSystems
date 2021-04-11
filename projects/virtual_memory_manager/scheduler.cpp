@@ -31,7 +31,7 @@ namespace scheduler
                     
                 }
             }
-            this->set_status(status_t::TERMINATED);
+            //this->set_status(status_t::TERMINATED);
         });
     }
 
@@ -63,8 +63,9 @@ namespace scheduler
     }
 
     /******************procT******************/
-    procT::procT(size_t service_time, uint32_t id, Writer* logger, Parser::cmdData* cData, Timer<std::chrono::milliseconds>* timer)
+    procT::procT(size_t arrival_time, size_t service_time, uint32_t id, Writer* logger, Parser::cmdData* cData, Timer<std::chrono::milliseconds>* timer)
     {
+        this->arrival_time = arrival_time*1000;
         this->service_time = service_time*1000;
         this->id = id;
         this->commandTime = 0;
@@ -75,6 +76,7 @@ namespace scheduler
     }
     procT::~procT()
     {
+        std::cout << "Terminating Process " << this->id << std::endl;
         this->terminate();
     }
 
@@ -112,19 +114,21 @@ namespace scheduler
         {
             if(this->commandTime == 0)
             {
-                uint32_t toWait = rand() % (this->end_time - currentTime);
+                uint32_t toWait = rand() % (this->end_time - this->start_time);
                 this->commandTime = toWait + currentTime;
+                this->commandTime = std::min(this->commandTime, (uint32_t)this->end_time);
             }
             else if(this->commandTime <= currentTime)
             {
                 Parser::Command cmd = commands->getCommand();
-                std::cout << currentTime << ", Execute: ";
+                std::cout << currentTime << ", Process " << this->id << ", Execute: ";
                 cmd.printCommand();
+                this->commandTime = 0;
             }
         }
         else
         {
-            this->terminate();
+            this->set_status(status_t::TERMINATED);
         }
     }
 
@@ -139,7 +143,6 @@ namespace scheduler
         this->numCores = pData->numCores;
         this->numProcess = pData->numProcess;
         this->sortProcesses();
-        std::cout << "about to create thread\n";
         this->thread = std::thread(&Scheduler::myThread, this);
     }
 
@@ -156,10 +159,9 @@ namespace scheduler
         for(int i = 0; i < pData->processes.size(); i++)
         {
             Parser::Process tempProc = pData->processes.at(i);
-            procT * tempThread = new procT(tempProc.serviceTime, tempProc.id, this->logger, this->commands, this->timer);
+            procT * tempThread = new procT(tempProc.arrivalTime, tempProc.serviceTime, tempProc.id, this->logger, this->commands, this->timer);
             this->processes.push(tempThread);
         }
-        std::cout << "*Scheduler* Processes sorted" << std::endl;
     }
 
     void Scheduler::myThread()
@@ -194,11 +196,11 @@ namespace scheduler
         uint64_t currentTime = timer->getElapsedTime();
         if(currentTime%1000 == 0)
         {
-            std::cout << "second " << currentTime << std::endl;
             for(int i = 0; i < this->activeProcesses.size(); i++)
             {
                 if(this->activeProcesses.at(i)->get_status() == status_t::TERMINATED)
                 {
+                    this->activeProcesses.at(i)->terminate();
                     numCores++;
                     this->activeProcesses.at(i) = this->activeProcesses.back();
                     this->activeProcesses.pop_back();
@@ -223,9 +225,14 @@ namespace scheduler
                 }
                 else
                 {
-                    std::cout << "this->processes is empty\n";
                     break;
                 }
+            }
+            if(this->activeProcesses.empty() && this->processes.empty())
+            {
+                this->set_status(status_t::TERMINATED);
+                std::cout << "Stopping Execution at " << currentTime << std::endl;
+                this->timer->stopTimer();
             }
         }
     }
