@@ -20,6 +20,7 @@ public:
         ERROR
     };
 
+    //Process structure containing id, arrival time, service timer, and compare operator for sorting
     struct Process
     {
         uint32_t id;
@@ -32,6 +33,7 @@ public:
         }
     };
 
+    //Command structure containing name, id, value and print command function
     struct Command
     {
         command_type name;
@@ -48,6 +50,7 @@ public:
         }
     };
 
+    //all Process data with vector of processes, the number of processes, and number of cores
     struct processData
     {
         std::vector<Process> processes;
@@ -55,6 +58,7 @@ public:
         int numProcess;
     };
 
+    //all Commands data, with getter function for the processes to use
     struct cmdData
     {
         Command getCommand()
