@@ -40,13 +40,15 @@ public:
         uint32_t id;
         int value;
 
-        void printCommand()
+        std::string printCommand()
         {
-            if(name == STORE) std::cout << "Store: ";
-            else if(name == LOOKUP) std::cout << "Lookup: ";
-            else std::cout << "Release: ";
+            std::string temp = "";
+            if(name == STORE) temp = "Store: ";
+            else if(name == LOOKUP) temp = "Lookup: ";
+            else temp = "Release: ";
 
-            std::cout << id << ", " << value << std::endl;
+            //std::cout << temp << id << ", " << value << std::endl;
+            return temp + std::to_string(id) + ", " + std::to_string(value);
         }
     };
 

@@ -37,16 +37,16 @@ int main(int argc, char const *argv[])
     parser.printProcessData();
     cData->printCmdData();
 
-    // Writer test
-    try
-    {
-        writer.write("MEM DATA: \n  Number of pages: " + std::to_string(numPages) + "\n\n");
-    }
-    catch (char const *e)
-    {
-        std::cout << e << '\n';
-        return EXIT_FAILURE;
-    }
+    // // Writer test
+    // try
+    // {
+    //     writer.write("MEM DATA: \n  Number of pages: " + std::to_string(numPages) + "\n\n");
+    // }
+    // catch (char const *e)
+    // {
+    //     std::cout << e << '\n';
+    //     return EXIT_FAILURE;
+    // }
 
     Timer<std::chrono::milliseconds> timer(1);
     timer.startTimer();

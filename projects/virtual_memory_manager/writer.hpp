@@ -24,6 +24,7 @@ public:
     {
         if (!outputFile.is_open()) throw "ERROR: Output file is closed";
         outputFile << string;
+        std::cout << string;
     }
 
     ~Writer()
