@@ -93,7 +93,7 @@ namespace scheduler
         {
             if(this->commandTime == 0) //if there is no command execution
             {
-                uint32_t toWait = rand() % (this->end_time - this->start_time); //get random wait time
+                uint32_t toWait = rand() % 1000 + 1; //get random wait time between 1 and 1000ms
                 this->commandTime = toWait + currentTime;   //set when the command is meant to be executed
                 this->commandTime = std::min(this->commandTime, (uint32_t)this->end_time);  //select minimum between random command execution time and end of process
             }
