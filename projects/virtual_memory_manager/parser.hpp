@@ -43,9 +43,18 @@ public:
         std::string printCommand()
         {
             std::string temp = "";
-            if(name == STORE) temp = "Store: ";
-            else if(name == LOOKUP) temp = "Lookup: ";
-            else temp = "Release: ";
+            switch (name)
+            {
+                case STORE:
+                    temp = "Store: ";
+                    break;
+                case LOOKUP:
+                    temp = "Lookup: ";
+                    break;
+                default:
+                    temp = "Release: ";
+                    break;
+            }
 
             //std::cout << temp << id << ", " << value << std::endl;
             return temp + std::to_string(id) + ", " + std::to_string(value);
