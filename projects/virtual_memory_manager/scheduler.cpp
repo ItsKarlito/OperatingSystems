@@ -83,7 +83,7 @@ namespace scheduler
     {
         this->start_time = this->timer->getElapsedTime();
         this->end_time = this->start_time + this->service_time;
-        std::cout << "Process " << this->id << " starts at " << this->start_time << std::endl;
+        std::cout << "Clock: " << this->start_time << ", Process " << this->id << ": Started" << std::endl;
     }
 
     void procT::cycle()
@@ -100,7 +100,7 @@ namespace scheduler
             else if(this->commandTime <= currentTime)   //command is ready to be executed
             {
                 Parser::Command cmd = commands->getCommand();   //get next command
-                std::cout << currentTime << ", Process " << this->id << ", Execute: ";
+                std::cout << "Clock: " << currentTime << ", Process " << this->id << ", ";
                 cmd.printCommand(); //print command that will be executed
                 this->commandTime = 0;  //reset command wait time
             }
@@ -108,7 +108,7 @@ namespace scheduler
         else
         {
             //terminate process
-            std::cout << "Terminating Process " << this->id << " at " << currentTime << std::endl;
+            std::cout << "Clock: " << currentTime << ", Process " << this->id << ": Finished" << std::endl;
             this->set_status(status_t::TERMINATED);
         }
     }
@@ -216,7 +216,7 @@ namespace scheduler
             if(this->activeProcesses.empty() && this->processes.empty()) //no more processes waiting, and no more active process. Terminate scheduler
             {
                 this->set_status(status_t::TERMINATED);
-                std::cout << "Stopping Execution at " << currentTime << std::endl;
+                std::cout << "Clock: " << currentTime << ", Stopping Execution" << std::endl;
                 this->timer->stopTimer();
             }
         }
