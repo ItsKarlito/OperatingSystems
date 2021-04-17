@@ -10,6 +10,7 @@
 
 #include "parser.hpp"
 #include "writer.hpp"
+#include "commandbuffer.hpp"
 #include "timer.hpp"
 
 namespace scheduler
@@ -52,7 +53,7 @@ namespace scheduler
     class procT: public thread_controller
     {
     public:
-        procT(size_t arrival_time, size_t service_time, uint32_t id, Writer* logger, Parser::cmdData* cData, Timer<std::chrono::milliseconds>* timer);
+        procT(size_t arrival_time, size_t service_time, uint32_t id, Writer* logger, CommandBuffer* cmdBuffer, Parser::cmdData* cData, Timer<std::chrono::milliseconds>* timer);
         ~procT();
 
         //getter and setter functions
@@ -67,6 +68,7 @@ namespace scheduler
     private:
         Parser::cmdData* commands;
         Writer* logger;
+        CommandBuffer* cmdBuffer;
         Timer<std::chrono::milliseconds>* timer;
         std::atomic<size_t> service_time;
         std::atomic<size_t> arrival_time;
@@ -80,7 +82,7 @@ namespace scheduler
     class Scheduler: public thread_controller
     {
     public:
-        Scheduler(Parser::cmdData* cData, Parser::processData* pData, Writer* logger, Timer<std::chrono::milliseconds>* timer);
+        Scheduler(Parser::cmdData* cData, Parser::processData* pData, Writer* logger, CommandBuffer* cmdBuffer, Timer<std::chrono::milliseconds>* timer);
         ~Scheduler();
 
         void sortProcesses(); //sort all processes in order of arrival
@@ -96,6 +98,7 @@ namespace scheduler
         
         Parser::cmdData* commands;
         Writer* logger;
+        CommandBuffer* cmdBuffer;
         Timer<std::chrono::milliseconds>* timer;
         Parser::processData* pData;
     };

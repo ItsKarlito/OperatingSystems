@@ -54,7 +54,7 @@ namespace scheduler
     }
 
     /******************procT******************/
-    procT::procT(size_t arrival_time, size_t service_time, uint32_t id, Writer* logger, Parser::cmdData* cData, Timer<std::chrono::milliseconds>* timer)
+    procT::procT(size_t arrival_time, size_t service_time, uint32_t id, Writer* logger, CommandBuffer* cmdBuffer, Parser::cmdData* cData, Timer<std::chrono::milliseconds>* timer)
     {
         this->arrival_time = arrival_time*1000; //translate from seconds to milliseconds
         this->service_time = service_time*1000; //translate from seconds to milliseconds
@@ -62,6 +62,7 @@ namespace scheduler
         this->commandTime = 0;
         this->commands = cData;
         this->logger = logger;
+        this->cmdBuffer = cmdBuffer;
         this->timer = timer;
         this->create_thread();
     }
@@ -100,6 +101,7 @@ namespace scheduler
             else if(this->commandTime <= currentTime)   //command is ready to be executed
             {
                 Parser::Command cmd = commands->getCommand();   //get next command
+                cmdBuffer->pushCmd(cmd);
                 logger->write("Clock: " + std::to_string(currentTime) + ", Process " + std::to_string(this->id) + ", " + cmd.printCommand() + '\n'); //print command that will be executed
                 this->commandTime = 0;  //reset command wait time
             }
@@ -114,11 +116,12 @@ namespace scheduler
 
 
     /******************SCHEDULER******************/
-    Scheduler::Scheduler(Parser::cmdData* commandData, Parser::processData* pData, Writer* logger, Timer<std::chrono::milliseconds>* timer)
+    Scheduler::Scheduler(Parser::cmdData* commandData, Parser::processData* pData, Writer* logger, CommandBuffer* cmdBuffer, Timer<std::chrono::milliseconds>* timer)
     {
         this->commands = commandData;
         this->pData = pData;
         this->logger = logger;
+        this->cmdBuffer = cmdBuffer;
         this->timer = timer;
         this->numCores = pData->numCores;
         this->numProcess = pData->numProcess;
@@ -140,7 +143,7 @@ namespace scheduler
         for(int i = 0; i < pData->processes.size(); i++)
         {
             Parser::Process tempProc = pData->processes.at(i);
-            procT * tempThread = new procT(tempProc.arrivalTime, tempProc.serviceTime, tempProc.id, this->logger, this->commands, this->timer);
+            procT * tempThread = new procT(tempProc.arrivalTime, tempProc.serviceTime, tempProc.id, this->logger, this->cmdBuffer, this->commands, this->timer);
             this->processes.push(tempThread);
         }
     }
