@@ -84,7 +84,7 @@ namespace scheduler
     {
         this->start_time = this->timer->getElapsedTime();
         this->end_time = this->start_time + this->service_time;
-        logger->write("Clock: " + std::to_string(this->start_time) + ", Process " + std::to_string(this->id) + ": Started\n");
+        logger->write("Process " + std::to_string(this->id) + ": Started");
     }
 
     void procT::cycle()
@@ -102,14 +102,14 @@ namespace scheduler
             {
                 Parser::Command cmd = commands->getCommand();   //get next command
                 cmdBuffer->pushCmd(cmd);
-                logger->write("Clock: " + std::to_string(currentTime) + ", Process " + std::to_string(this->id) + ", " + cmd.printCommand() + '\n'); //print command that will be executed
+                logger->write("Process " + std::to_string(this->id) + ", " + cmd.printCommand()); //print command that will be executed
                 this->commandTime = 0;  //reset command wait time
             }
         }
         else
         {
             //terminate process
-            logger->write("Clock: " + std::to_string(currentTime) + ", Process " + std::to_string(this->id) + ": Finished\n");
+            logger->write("Process " + std::to_string(this->id) + ": Finished");
             this->set_status(status_t::TERMINATED);
         }
     }

@@ -1,3 +1,5 @@
 *.o
 .vscode
 build/
+vmem.txt
+output.txt

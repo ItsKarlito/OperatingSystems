@@ -1,27 +1,21 @@
 #include "vmm.hpp"
 
 namespace vmm
-{
-    void vmm_f::add_page( const page_t& page )
+{  
+    void vmm_file::add_page( const page_t& page )
     {
         this->pages.push_back(page);
     }
-    page_t& vmm_f::retrieve_page( size_t i )
-    {
-        return this->pages.at(i);
-    }
-    size_t vmm_f::size()
-    {
-        return this->pages.size();
-    }
-    
-    void vmm_f::write(const std::string& path)
+
+    void vmm_file::write(const std::string& path)
     {
         // Open file, or throw an exception if you can't open it
         std::ofstream f(path, std::ofstream::out | std::ofstream::binary);
         if(!f.is_open())
             throw std::runtime_error("cannot write to \"" + path + "\"");
             
+        // Write the contents of the page into a string and write that string
+        // into a file
         std::string buffer;
         for(int i = 0; i < this->pages.size(); i++)
         {
@@ -35,15 +29,13 @@ namespace vmm
             buffer += std::to_string(this->pages[i].available);
         }
         buffer += ",";
-
-        // Write array into file
         f.write(buffer.c_str(), buffer.size());
 
-        // Free array and close file
+        // Close file
         f.close();
     }
 
-    void vmm_f::read(const std::string& path)
+    void vmm_file::read(const std::string& path)
     {
         // Open file for reading or throw an exception if you can't. Also, reset the file pointer to
         // the end to get the size
@@ -75,10 +67,8 @@ namespace vmm
         buffer.assign((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
         f.close();
 
-        // Go through the file. If you find a ',' and you did so after
-        // sizeof(page_t)+1 amount for bytes has passed, copy the bytes
-        // in between the current and last ',' into a page_t object. Then
-        // append that object into this->pages.
+        // Find the commas on the file and use them to know the beggining and ends
+        // of each page
         page_t t = {};
         for(size_t i = 0; i < file_size; i++)
         {
@@ -102,13 +92,13 @@ namespace vmm
         }
     }
     
-    void vmm_f::read()
+    void vmm_file::read()
     { this->read(this->path); }
 
-    void vmm_f::write()
+    void vmm_file::write()
     { this->write(this->path); }
 
-    void vmm_f::remove(size_t i)
+    void vmm_file::remove(size_t i)
     {
         if(i < this->pages.size())
             this->pages.erase(this->pages.begin() + i);
