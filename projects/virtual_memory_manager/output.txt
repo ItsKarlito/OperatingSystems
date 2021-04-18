@@ -1,0 +1,25 @@
+Clock: 1000, Process 2: Started
+Clock: 1720, Process 2, Store: 1, 5
+Clock: 2000, Process 1: Started
+Clock: 2266, Process 2, Store: 2, 3
+Clock: 2497, Process 1, Store: 3, 7
+Clock: 2679, Process 2, Lookup: 3, 0
+Clock: 2679, Memory Manager, SWAP: Variable 3 with Variable 1
+Clock: 2770, Process 1, Lookup: 2, 0
+Clock: 2827, Process 2, Release: 1, 0
+Clock: 3000, Process 2: Finished
+Clock: 3329, Process 1, Store: 1, 8
+Clock: 4000, Process 3: Started
+Clock: 4104, Process 1, Lookup: 1, 0
+Clock: 4104, Memory Manager, SWAP: Variable 1 with Variable 3
+Clock: 4376, Process 1, Store: 1, 5
+Clock: 4584, Process 3, Store: 2, 3
+Clock: 5000, Process 1: Finished
+Clock: 5288, Process 3, Store: 3, 7
+Clock: 5307, Process 3, Lookup: 3, 0
+Clock: 5307, Memory Manager, SWAP: Variable 3 with Variable 1
+Clock: 6160, Process 3, Lookup: 2, 0
+Clock: 6563, Process 3, Release: 1, 0
+Clock: 6740, Process 3, Store: 1, 8
+Clock: 7000, Process 3: Finished
+Clock: 7000, Stopping Execution

@@ -26,7 +26,7 @@ public:
     {
         std::unique_lock<std::mutex> lck(logger_mutex);
         if (!outputFile.is_open()) throw "ERROR: Output file is closed";
-        // outputFile << string;
+        outputFile << string;
         std::cout << string;
     }
 
