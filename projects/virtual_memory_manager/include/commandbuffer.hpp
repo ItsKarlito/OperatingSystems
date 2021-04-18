@@ -23,12 +23,21 @@ public:
 
     Parser::Command popCmd()
     {
+        Parser::Command cmd;
         commandBuffer_mtx.lock();
         if (commandBuffer.size() > 0)
         {
-            commandBuffer.pop();
+            cmd = commandBuffer.front(); // get cmd in front of queue
+            commandBuffer.pop();         // delete cmd in front of queue
         }
         commandBuffer_mtx.unlock();
+        return cmd;
+    }
+
+    std::size_t getSize()
+    {
+        std::unique_lock<std::mutex> lck(commandBuffer_mtx);
+        return commandBuffer.size();
     }
 
     ~CommandBuffer() {}

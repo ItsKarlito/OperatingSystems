@@ -5,6 +5,7 @@
 #include <vector>
 #include <mutex>
 #include <sstream>
+#include <iostream>
 
 #define PARSER_DEBUG
 
@@ -19,19 +20,50 @@ public:
         ERROR
     };
 
+    //Process structure containing id, arrival time, service timer, and compare operator for sorting
     struct Process
     {
+        uint32_t id;
         uint32_t arrivalTime;
         uint32_t serviceTime;
+
+        bool operator < (const Process& p) const
+        {
+            return(arrivalTime < p.arrivalTime);
+        }
     };
 
+    //Command structure containing name, id, value and print command function
     struct Command
     {
         command_type name;
         uint32_t id;
         int value;
+
+        bool serviceable;
+
+        std::string printCommand()
+        {
+            std::string temp = "";
+            switch (name)
+            {
+                case STORE:
+                    temp = "Store: ";
+                    break;
+                case LOOKUP:
+                    temp = "Lookup: ";
+                    break;
+                default:
+                    temp = "Release: ";
+                    break;
+            }
+
+            //std::cout << temp << id << ", " << value << std::endl;
+            return temp + std::to_string(id) + ", " + std::to_string(value);
+        }
     };
 
+    //all Process data with vector of processes, the number of processes, and number of cores
     struct processData
     {
         std::vector<Process> processes;
@@ -39,16 +71,36 @@ public:
         int numProcess;
     };
 
+    //all Commands data, with getter function for the processes to use
     struct cmdData
     {
         Command getCommand()
         {
-            return commands.at(currentCmd++);
+            if(currentCmd < (commands.size() - 1))
+            {
+                return commands.at(currentCmd++);
+            }
+            else if(currentCmd == (commands.size() - 1))
+            {
+                uint32_t tempCurrent = currentCmd;
+                currentCmd = 0;
+                return commands.at(tempCurrent);
+            }
+            else
+            {
+                currentCmd = 0;
+                return commands.at(currentCmd);
+            }
         }
 
         void addCmd(Command cmd)
         {
             commands.push_back(cmd);
+        }
+
+        void deleteCmd()
+        {
+            commands.clear();
         }
 
 #ifdef PARSER_DEBUG
@@ -149,6 +201,8 @@ public:
                 proc.arrivalTime = std::stoi(tempVal);
                 strStream >> tempVal;
                 proc.serviceTime = std::stoi(tempVal);
+
+                proc.id = i+1;
 
                 pData.processes.push_back(proc);
             }
