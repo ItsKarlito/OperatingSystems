@@ -218,7 +218,7 @@ namespace scheduler
             if(this->activeProcesses.empty() && this->processes.empty()) //no more processes waiting, and no more active process. Terminate scheduler
             {
                 this->set_status(status_t::TERMINATED);
-                logger->write("Clock: " + std::to_string(currentTime) + ", Stopping Execution\n");
+                //logger->write("Clock: " + std::to_string(currentTime) + ", Stopping Execution\n");
                 this->timer->stopTimer();
             }
         }
