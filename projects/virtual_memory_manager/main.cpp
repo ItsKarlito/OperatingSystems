@@ -2,11 +2,14 @@
 #include <cstdlib>
 
 #include "writer.hpp"
-#include "parser.hpp"
+#include "commandbuffer.hpp"
+#include "scheduler.hpp"
 
 int main(int argc, char const *argv[])
 {
+    srand(time(0));
     Writer writer;
+    CommandBuffer cmdBuffer;
     std::string inputFilePath = "./projects/virtual_memory_manager/";
     if (argc == 2)
     {
@@ -36,16 +39,20 @@ int main(int argc, char const *argv[])
     parser.printProcessData();
     cData->printCmdData();
 
-    // Writer test
-    try
-    {
-        writer.write("MEM DATA: \n  Number of pages: " + std::to_string(numPages) + "\n\n");
-    }
-    catch (char const *e)
-    {
-        std::cout << e << '\n';
-        return EXIT_FAILURE;
-    }
+    // // Writer test
+    // try
+    // {
+    //     writer.write("MEM DATA: \n  Number of pages: " + std::to_string(numPages) + "\n\n");
+    // }
+    // catch (char const *e)
+    // {
+    //     std::cout << e << '\n';
+    //     return EXIT_FAILURE;
+    // }
+
+    Timer<std::chrono::milliseconds> timer(1);
+    timer.startTimer();
+    scheduler::Scheduler sched(cData, pData, &writer, &cmdBuffer, &timer);
 
     return EXIT_SUCCESS;
 }

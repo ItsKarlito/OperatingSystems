@@ -1,0 +1,21 @@
+Clock: 1000, Process 2: Started
+Clock: 1179, Process 2, Store: 1, 5
+Clock: 2000, Process 1: Started
+Clock: 2036, Process 1, Store: 2, 3
+Clock: 2056, Process 1, Store: 3, 7
+Clock: 2114, Process 2, Lookup: 3, 0
+Clock: 2437, Process 1, Lookup: 2, 0
+Clock: 3000, Process 2: Finished
+Clock: 3104, Process 1, Release: 1, 0
+Clock: 3882, Process 1, Store: 1, 8
+Clock: 4000, Process 3: Started
+Clock: 4041, Process 1, Lookup: 1, 0
+Clock: 4719, Process 1, Store: 1, 5
+Clock: 4799, Process 3, Store: 2, 3
+Clock: 4813, Process 3, Store: 3, 7
+Clock: 4916, Process 1, Lookup: 3, 0
+Clock: 5000, Process 1: Finished
+Clock: 5802, Process 3, Lookup: 2, 0
+Clock: 6280, Process 3, Release: 1, 0
+Clock: 7000, Process 3: Finished
+Clock: 7000, Stopping Execution
