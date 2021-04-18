@@ -14,7 +14,8 @@ file(
     "${DIR}/*.h"
     "${DIR}/*.hpp"
 )
-
+include_directories("${DIR}/")
+include_directories("${DIR}/include")
 add_executable(
     "${DIR}"
 
