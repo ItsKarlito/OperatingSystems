@@ -2,88 +2,92 @@
 
 namespace vmm
 {
-    void vmem_f::write(const std::string& path)
+    vmm::vmm(size_t page_count, std::string file_path): manager(page_count, file_path) {}
+
+    void vmm::cycle()
     {
-        // Open file, or throw an exception if you can't open it
-        std::ofstream f(path, std::ofstream::out | std::ofstream::binary);
-        if(!f.is_open())
-            throw std::runtime_error("cannot write to \"" + path + "\"");
-
-        // Allocate some memory space for the file data
-        char* buffer = (char*)malloc(sizeof(page_t)*pages.size() + sizeof(char));
-
-        // Write this->pages info into the array
-        size_t index = 0;
-        for(const page_t& page : this->pages)
+        operation op = this->get_operation();
+        switch (op.type)
         {
-            buffer[index++] = FILE_TAG;
-            memcpy((void *)&buffer[index], (void *)&page, sizeof(page_t));
-            index += sizeof(page_t);
+        case operation_type::store_op:
+            this->manager.store(op.id, op.type);
+            this->set_response(0);
+            break;
+        case operation_type::release_op:
+            this->set_response(this->manager.release(op.id));
+            break;        
+        case operation_type::lookup_op:
+            this->set_response(this->manager.lookup(op.id));
+            break;
         }
-
-        // Write array into file
-        f.write(buffer, index+1);
-
-        // Free array and close file
-        free((void*)buffer);
-        f.close();
     }
 
-    void vmem_f::read(const std::string& path)
+    void vmm::store(std::string id, uint value)
     {
-        // Open file for reading or throw an exception if you can't. Also, reset the file pointer to
-        // the end to get the size
-        std::ifstream f(path, std::ifstream::in | std::ifstream::binary | std::ifstream::ate);
-        if(!f.is_open())
-            throw std::runtime_error("cannot read \"" + path + "\"");
+        operation op = {};
+        op.id = id;
+        op.val = value;
+        op.type = operation_type::store_op;
+        this->set_operation(op);
+        this->get_response();
+    }
+    bool vmm::release(std::string id)
+    {
+        operation op = {};
+        op.id = id;
+        op.type = operation_type::store_op;
+        this->set_operation(op);
+        return static_cast<bool>(this->get_response());
+    }
+    long int vmm::lookup(std::string id)
+    {
+        operation op = {};
+        op.id = id;
+        op.type = operation_type::store_op;
+        this->set_operation(op);
+        return this->get_response();
+    }
 
-        // Delete previous pages entries
-        this->pages.clear();
+    void vmm::set_logger_callback(vmm_manager::logger_callback_t c)
+    {
+        this->manager.set_logger_callback(c);
+    }
+    void vmm::set_timer_callback(vmm_manager::timer_callback_t c)
+    {
+        this->manager.set_timer_callback(c);
+    }
 
-        // Get the file size with the file pointer
-        size_t file_size = f.tellg();
+    void vmm::set_response(long int resp)
+    {
+        std::unique_lock<std::mutex> lck(this->resp_mutex);
+        this->resp = resp;
+        this->resp_ready = true;
+        lck.unlock();
+        resp_cv.notify_all();
+    }
 
-        // Reset the file pointer to the beggining of the file
-        f.clear();
-        f.seekg(0, std::ifstream::beg);
-        
-        // Check if the file has a size larger than one
-        if(file_size < 1)
-        {
-            f.close();
-            return;
-        }
+    long int vmm::get_response()
+    {
+        std::unique_lock<std::mutex> lck(this->resp_mutex);
+        this->resp_ready = false;
+        resp_cv.wait(lck, [this]{return this->resp_ready;});
+        return resp;
+    }
 
-        // Read the file contents into memory (buffer), and close the file since
-        // we will be no longer using it
-        std::string buffer;
-        buffer.reserve(file_size);        
-        buffer.assign((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
-        f.close();
+    void vmm::set_operation(const operation& op)
+    {
+        std::unique_lock<std::mutex> lck(this->operation_buffer_mutex);
+        this->operation_buffer = op;
+        this->op_ready = true;
+        lck.unlock();
+        op_cv.notify_all();
+    }
 
-        // Go through the file. If you find a ',' and you did so after
-        // sizeof(page_t)+1 amount for bytes has passed, copy the bytes
-        // in between the current and last ',' into a page_t object. Then
-        // append that object into this->pages.
-        std::string s_b = "";
-        page_t t = {};
-        size_t safe = 0;
-        const size_t b_s = buffer.size();
-        for(size_t i = 0; i < b_s; i++)
-        {
-            char c = buffer[i];
-            if((c == FILE_TAG && i >= safe) || i == b_s-1)
-            {
-                safe += sizeof(page_t)+1;
-                if(i < 1)
-                    continue;
-
-                memcpy((void *) &t, (void*)s_b.c_str(), sizeof(page_t));
-                this->pages.push_back(t);
-                s_b = "";
-            }
-            else
-                s_b += c;
-        }
+    vmm::operation vmm::get_operation()
+    {
+        std::unique_lock<std::mutex> lck(this->operation_buffer_mutex);
+        this->op_ready = false;
+        op_cv.wait(lck, [this]{return this->resp_ready;});
+        return operation_buffer;
     }
 }
