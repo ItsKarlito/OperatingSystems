@@ -156,7 +156,12 @@ public:
 
         std::string numPages;
         getline(memconfigFile, numPages);
-        return std::stoi(numPages);
+        int numP = std::stoi(numPages);
+        if(numP < 1)
+        {
+            throw "ERROR: Number of pages of main memory must be at least 1";
+        }
+        return numP;
     }
 
     void parseProcess()
