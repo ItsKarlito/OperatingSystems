@@ -54,7 +54,7 @@ int main(int argc, char const *argv[])
     Timer<std::chrono::milliseconds> timer(1);
     timer.startTimer();
 
-    vmm::vmm vmem_manager( numPages, "./vmem.bin", &cmdBuffer);
+    vmm::vmm vmem_manager( numPages, inputFilePath + "./vmem.bin", &cmdBuffer);
     vmem_manager.run();
     scheduler::Scheduler sched(cData, pData, &writer, &cmdBuffer, &timer);
     Writer* w = &writer;
