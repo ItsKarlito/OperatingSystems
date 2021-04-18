@@ -21,24 +21,25 @@ namespace vmm
         std::ofstream f(path, std::ofstream::out | std::ofstream::binary);
         if(!f.is_open())
             throw std::runtime_error("cannot write to \"" + path + "\"");
-
-        // Allocate some memory space for the file data
-        char* buffer = (char*)malloc(sizeof(page_t)*pages.size());
-
-        // Write this->pages info into the array
-        size_t index = 0;
-        for(const page_t& page : this->pages)
+            
+        std::string buffer;
+        for(int i = 0; i < this->pages.size(); i++)
         {
-            buffer[index++] = FILE_TAG;
-            memcpy((void *)&buffer[index], (void *)&page, sizeof(page_t));
-            index += sizeof(page_t);
+            buffer = ",";
+            buffer += this->pages[i].id;
+            buffer += "|";
+            buffer += std::to_string(this->pages[i].val);
+            buffer += "|";
+            buffer += std::to_string(this->pages[i].last_access_time);
+            buffer += "|";
+            buffer += std::to_string(this->pages[i].available);
         }
+        buffer += ",";
 
         // Write array into file
-        f.write(buffer, index+1);
+        f.write(buffer.c_str(), buffer.size());
 
         // Free array and close file
-        free((void*)buffer);
         f.close();
     }
 
@@ -78,25 +79,26 @@ namespace vmm
         // sizeof(page_t)+1 amount for bytes has passed, copy the bytes
         // in between the current and last ',' into a page_t object. Then
         // append that object into this->pages.
-        std::string s_b = "";
         page_t t = {};
-        size_t safe = 0;
-        const size_t b_s = buffer.size();
-        for(size_t i = 0; i < b_s; i++)
+        for(size_t i = 0; i < file_size; i++)
         {
-            char c = buffer[i];
-            if((c == FILE_TAG && i >= safe) || i == b_s-1)
+            if(buffer[i] == ',')
             {
-                safe += sizeof(page_t)+1;
-                if(i < 1)
-                    continue;
-
-                memcpy((void *) &t, (void*)s_b.c_str(), sizeof(page_t));
+                size_t s = ++i;
+                for(; buffer[s] != '|' && s < file_size; s++);
+                t.id = std::string(&buffer[i], s++ - i);
+                i = s;
+                for(; buffer[s] != '|' && s < file_size; s++);
+                t.val = std::stol(std::string(&buffer[i], ++s-i));
+                i = s;
+                for(; buffer[s] != '|' && s < file_size; s++);
+                t.last_access_time = std::stol(std::string(&buffer[i], ++s-i));
+                i = s;
+                for(; buffer[s] != ',' && s < file_size; s++);
+                t.available = static_cast<bool>(std::stol(std::string(&buffer[i], ++s-i)));
                 this->pages.push_back(t);
-                s_b = "";
+                i = s;
             }
-            else
-                s_b += c;
         }
     }
     

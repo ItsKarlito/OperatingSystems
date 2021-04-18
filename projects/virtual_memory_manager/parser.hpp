@@ -40,6 +40,8 @@ public:
         uint32_t id;
         int value;
 
+        bool serviceable;
+
         std::string printCommand()
         {
             std::string temp = "";

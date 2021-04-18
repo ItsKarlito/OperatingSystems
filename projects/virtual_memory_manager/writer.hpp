@@ -1,6 +1,7 @@
 #ifndef WRITER_HPP_
 #define WRITER_HPP_
 
+#include <mutex>
 #include <iostream>
 #include <fstream>
 
@@ -8,6 +9,7 @@ class Writer
 {
 private:
     std::ofstream outputFile;
+    std::mutex logger_mutex;
 
 public:
     Writer() {}
@@ -22,8 +24,9 @@ public:
 
     void write(std::string string)
     {
+        std::unique_lock<std::mutex> lck(logger_mutex);
         if (!outputFile.is_open()) throw "ERROR: Output file is closed";
-        outputFile << string;
+        // outputFile << string;
         std::cout << string;
     }
 

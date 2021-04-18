@@ -36,6 +36,7 @@ public:
 
     std::size_t getSize()
     {
+        std::unique_lock<std::mutex> lck(commandBuffer_mtx);
         return commandBuffer.size();
     }
 

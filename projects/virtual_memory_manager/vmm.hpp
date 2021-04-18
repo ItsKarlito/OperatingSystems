@@ -12,6 +12,7 @@
 #include <queue>
 
 #include "thread_controller.hpp"
+#include "commandbuffer.hpp"
 
 namespace vmm
 {
@@ -23,7 +24,7 @@ namespace vmm
         std::string id = "";
         uint last_access_time = 0;
 
-        bool available = false;
+        bool available = true;
 
         operator std::string() const {                                  // Mostly for debugging. Used to print the values of page_t
             std::stringstream ss;
@@ -68,7 +69,7 @@ namespace vmm
     private:
         vmm_f file;
         std::string file_path;
-        std::vector<page_t> pages;
+        page_t* pages;
         size_t page_count = 0;
 
         logger_callback_t logger_callback;
@@ -80,6 +81,7 @@ namespace vmm
     
     public:
         vmm_manager(size_t page_count, std::string file_path);
+        ~vmm_manager();
         
         void store(std::string id, uint value);
         bool release(std::string id);
@@ -109,24 +111,22 @@ namespace vmm
             bool served = true;
         };
 
-        uint call_id;
-        std::mutex operation_buffer_mutex;
-        operation operation_buffer;
-        bool op_ready;
-        std::condition_variable op_cv;
+        // uint call_id;
+        // std::mutex operation_buffer_mutex;
+        // operation operation_buffer;
+        // bool op_ready;
+        // std::condition_variable op_cv;
 
-        std::mutex resp_mutex;
-        long int resp = -1;
-        bool resp_ready = false;
-        std::condition_variable resp_cv;
+        // std::mutex resp_mutex;
+        // long int resp = -1;
+        // bool resp_ready = false;
+        // std::condition_variable resp_cv;
+
+        CommandBuffer* command_buffer;
     
     public:
-        vmm(size_t page_count, std::string file_path);
+        vmm(size_t page_count, std::string file_path, CommandBuffer* command_buffer);
         ~vmm();
-
-        void store(std::string id, uint value);
-        bool release(std::string id);
-        long int lookup(std::string id);
 
         void set_logger_callback(vmm_manager::logger_callback_t c);
         void set_timer_callback(vmm_manager::timer_callback_t c);
@@ -134,12 +134,12 @@ namespace vmm
     protected:
         void cycle() override;
     
-    private:
-        void set_response(long int resp);
-        long int get_response();
+    // private:
+    //     void set_response(long int resp);
+    //     long int get_response();
 
-        void set_operation(const operation& op);
-        operation get_operation();
+    //     void set_operation(const operation& op);
+    //     operation get_operation();
     };
 }
 
