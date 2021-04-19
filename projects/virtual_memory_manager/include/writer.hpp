@@ -4,6 +4,7 @@
 #include <mutex>
 #include <iostream>
 #include <fstream>
+#include "timer.hpp"
 
 class Writer
 {
@@ -11,29 +12,40 @@ private:
     std::ofstream outputFile;
     std::mutex logger_mutex;
 
-public:
-    Writer() {}
+    Timer<std::chrono::milliseconds>* timer;
 
-    // sets the output files destination
-    void initialize(std::string outputFilePath)
+public:
+    // Constructor. Initializes the writer. Will
+    // throw an exception if path can't be oppened
+    Writer(std::string path, Timer<std::chrono::milliseconds>* timer): timer(timer)
     {
-        if (outputFile.is_open()) throw "ERROR: Writer is already initialized";
-        outputFile.open(outputFilePath + "output.txt");
-        if (!outputFile.is_open()) throw "ERROR: Could not open output file";
+        this->outputFile.open(path);
+        if (!this->outputFile.is_open()) 
+            throw "ERROR: Could not open output file";
     }
 
+    // Writes string in both log file and cout
     void write(std::string string)
     {
         std::unique_lock<std::mutex> lck(logger_mutex);
-        if (!outputFile.is_open()) throw "ERROR: Output file is closed";
-        outputFile << string;
+        string =
+            std::string("Clock: ") + std::to_string(timer->getElapsedTime()) + ", " + string + "\n";
         std::cout << string;
+        if (!this->outputFile.is_open()) return;
+        this->outputFile << string;
     }
 
+    // Destructor. Closes files
     ~Writer()
     {
         if(outputFile.is_open())
             outputFile.close();
+    }
+
+    // Get current time from timer
+    uint64_t getElapsedTime()
+    {
+        return this->timer->getElapsedTime();
     }
 };
 

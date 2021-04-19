@@ -85,7 +85,7 @@ namespace vmm
         }
 
         file.read();
-        vmm_f::pages_t& p_pages = file.get_pages();
+        vmm_file::pages_t& p_pages = file.get_pages();
         for(size_t i = 0; i < p_pages.size(); i++)
         {
             if(p_pages[i].id == id)
