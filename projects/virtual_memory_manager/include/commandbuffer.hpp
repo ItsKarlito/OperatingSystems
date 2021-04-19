@@ -14,6 +14,7 @@ private:
 public:
     CommandBuffer() {}
 
+    // add new command to the end of queue
     void pushCmd(Parser::Command cmd)
     {
         commandBuffer_mtx.lock();
@@ -21,6 +22,7 @@ public:
         commandBuffer_mtx.unlock();
     }
 
+    // remove and return first command from the queue
     Parser::Command popCmd()
     {
         Parser::Command cmd;
@@ -34,6 +36,7 @@ public:
         return cmd;
     }
 
+    // get number of commands in the queue
     std::size_t getSize()
     {
         std::unique_lock<std::mutex> lck(commandBuffer_mtx);

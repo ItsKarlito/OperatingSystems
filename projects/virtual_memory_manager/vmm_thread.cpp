@@ -3,12 +3,11 @@
 namespace vmm
 {
     vmm_thread::vmm_thread(
-        size_t page_count, 
-        std::string file_path, 
-        CommandBuffer* command_buffer,
-        Timer<std::chrono::milliseconds>* timer,
-        Writer* writer
-    ): manager(page_count, file_path), command_buffer(command_buffer) , timer(timer), writer(writer)
+        size_t page_count,
+        std::string file_path,
+        CommandBuffer *command_buffer,
+        Timer<std::chrono::milliseconds> *timer,
+        Writer *writer) : manager(page_count, file_path), command_buffer(command_buffer), timer(timer), writer(writer)
     {
         this->create_thread();
 
@@ -16,17 +15,13 @@ namespace vmm
         f.close();
 
         this->manager.set_logger_callback(
-            [this](std::string msg)
-            {
+            [this](std::string msg) {
                 this->writer->write(msg);
-            }
-        );
+            });
         this->manager.set_timer_callback(
-            [this]()
-            {
+            [this]() {
                 return this->timer->getElapsedTime();
-            }
-        );
+            });
     }
     vmm_thread::~vmm_thread()
     {
@@ -38,14 +33,14 @@ namespace vmm
         // If the command buffer is empty and you're not told to terminate
         // just don't do anything. If you are told to terminate, exit the
         // function.
-        while(this->command_buffer->getSize() < 1)
+        while (this->command_buffer->getSize() < 1)
         {
-            if(this->get_status() == thread_controller::status_t::TERMINATED)
+            if (this->get_status() == thread_controller::status_t::TERMINATED)
                 return;
         }
 
         Parser::Command cmd = command_buffer->popCmd();
-        
+
         switch (cmd.name)
         {
         case Parser::command_type::LOOKUP:

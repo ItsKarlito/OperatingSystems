@@ -13,15 +13,15 @@ private:
     std::ofstream outputFile;
     std::mutex logger_mutex;
 
-    Timer<std::chrono::milliseconds>* timer;
+    Timer<std::chrono::milliseconds> *timer;
 
 public:
     // Constructor. Initializes the writer. Will
     // throw an exception if path can't be oppened
-    Writer(std::string path, Timer<std::chrono::milliseconds>* timer): timer(timer)
+    Writer(std::string path, Timer<std::chrono::milliseconds> *timer) : timer(timer)
     {
         outputFile.open(path);
-        if (!this->outputFile.is_open()) 
+        if (!this->outputFile.is_open())
             throw std::runtime_error("ERROR: Could not open output file");
     }
 
@@ -42,7 +42,7 @@ public:
     // Destructor. Closes files
     ~Writer()
     {
-        if(outputFile.is_open())
+        if (outputFile.is_open())
             outputFile.close();
     }
 

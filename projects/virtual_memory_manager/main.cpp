@@ -9,30 +9,28 @@
 
 int main(int argc, char const *argv[])
 {
-    Parser* parser = nullptr;
-    Writer* writer = nullptr;
-    Timer<std::chrono::milliseconds>* timer = nullptr;
-    vmm::vmm_thread* vmem_manager = nullptr;
-    CommandBuffer* cmdBuffer = nullptr;
+    Parser *parser = nullptr;
+    Writer *writer = nullptr;
+    Timer<std::chrono::milliseconds> *timer = nullptr;
+    vmm::vmm_thread *vmem_manager = nullptr;
+    CommandBuffer *cmdBuffer = nullptr;
     size_t number_of_pages = 0;
 
     // Lambda used to deinitialize all of the
     // object pointers used for the scheduler
     std::function<void()> deinitialize(
-        [=]()
-        {
-            if(parser != nullptr)
+        [=]() {
+            if (parser != nullptr)
                 delete parser;
-            if(writer != nullptr)
+            if (writer != nullptr)
                 delete writer;
-            if(timer != nullptr)
+            if (timer != nullptr)
                 delete timer;
-            if(vmem_manager != nullptr)
+            if (vmem_manager != nullptr)
                 delete vmem_manager;
-            if(cmdBuffer != nullptr)
+            if (cmdBuffer != nullptr)
                 delete cmdBuffer;
-        }
-    );
+        });
 
     // Initialize random number generator
     srand(time(0));
@@ -63,11 +61,10 @@ int main(int argc, char const *argv[])
         // manager
         vmem_manager = new vmm::vmm_thread(
             number_of_pages,
-            vmm_path, 
+            vmm_path,
             cmdBuffer,
-            timer, 
-            writer
-        );
+            timer,
+            writer);
         vmem_manager->run();
 
         // Get parser data
@@ -80,13 +77,13 @@ int main(int argc, char const *argv[])
         // Start scheduler
         scheduler::Scheduler sched(cData, pData, writer, cmdBuffer, timer);
     }
-    catch(const std::exception& e)
+    catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
         deinitialize();
         return EXIT_FAILURE;
     }
-    
+
     deinitialize();
     return EXIT_SUCCESS;
 }

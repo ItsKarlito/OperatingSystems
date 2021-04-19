@@ -27,9 +27,9 @@ public:
         uint32_t arrivalTime;
         uint32_t serviceTime;
 
-        bool operator < (const Process& p) const
+        bool operator<(const Process &p) const
         {
-            return(arrivalTime < p.arrivalTime);
+            return (arrivalTime < p.arrivalTime);
         }
     };
 
@@ -47,15 +47,15 @@ public:
             std::string temp = "";
             switch (name)
             {
-                case STORE:
-                    temp = "Store: ";
-                    break;
-                case LOOKUP:
-                    temp = "Lookup: ";
-                    break;
-                default:
-                    temp = "Release: ";
-                    break;
+            case STORE:
+                temp = "Store: ";
+                break;
+            case LOOKUP:
+                temp = "Lookup: ";
+                break;
+            default:
+                temp = "Release: ";
+                break;
             }
 
             //std::cout << temp << id << ", " << value << std::endl;
@@ -76,11 +76,11 @@ public:
     {
         Command getCommand()
         {
-            if(currentCmd < (commands.size() - 1))
+            if (currentCmd < (commands.size() - 1))
             {
                 return commands.at(currentCmd++);
             }
-            else if(currentCmd == (commands.size() - 1))
+            else if (currentCmd == (commands.size() - 1))
             {
                 uint32_t tempCurrent = currentCmd;
                 currentCmd = 0;
@@ -145,6 +145,7 @@ public:
 
     cmdData *getCmdData() { return &cData; }
 
+    // parse the memconfig.txt config file
     uint32_t parseMemConfig()
     {
         std::string file = inputPath + memconfigFileName;
@@ -157,13 +158,14 @@ public:
         std::string numPages;
         getline(memconfigFile, numPages);
         int numP = std::stoi(numPages);
-        if(numP < 1)
+        if (numP < 1)
         {
             throw "ERROR: Number of pages of main memory must be at least 1";
         }
         return numP;
     }
 
+    // parse the processes.txt config file
     void parseProcess()
     {
         std::string file = inputPath + processFileName;
@@ -177,7 +179,7 @@ public:
         getline(processFile, line);
         pData.numCores = std::stoi(line);
 
-        if(pData.numCores < 1)
+        if (pData.numCores < 1)
         {
             throw "ERROR: Number of cores must be at least 1";
         }
@@ -185,15 +187,15 @@ public:
         getline(processFile, line);
         pData.numProcess = std::stoi(line);
 
-        if(pData.numProcess < 0)
+        if (pData.numProcess < 0)
         {
             throw "ERROR: Number of processes cannot be negative";
         }
 
         std::stringstream strStream;
-        for(int i = 0; i < pData.numProcess; i++)
+        for (int i = 0; i < pData.numProcess; i++)
         {
-            if(!processFile.eof())
+            if (!processFile.eof())
             {
                 getline(processFile, line);
                 Process proc;
@@ -207,7 +209,7 @@ public:
                 strStream >> tempVal;
                 proc.serviceTime = std::stoi(tempVal);
 
-                proc.id = i+1;
+                proc.id = i + 1;
 
                 pData.processes.push_back(proc);
             }
@@ -216,12 +218,13 @@ public:
                 throw "ERROR: The number of processes provided is bigger than the number of arrival/service time pairs";
             }
         }
-        if(!processFile.eof())
+        if (!processFile.eof())
         {
             throw "ERROR: The number of processes provided is smaller than the number of arrival/service time pairs";
         }
     }
 
+    // parse the commands.txt config file
     void parseCommands()
     {
         std::string file = inputPath + commandsFileName;

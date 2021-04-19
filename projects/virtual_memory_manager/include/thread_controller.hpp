@@ -20,10 +20,10 @@ protected:
     // children.
     virtual void cycle() = 0;
 
-    // Creates the thread to be controlled (must be called before run/pause/terminate)                                                                           
+    // Creates the thread to be controlled (must be called before run/pause/terminate)
     void create_thread();
     // Returns this->thread
-    std::thread& get_thread();
+    std::thread &get_thread();
 
 public:
     // Changes the control flow for the thread
