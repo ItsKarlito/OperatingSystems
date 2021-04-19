@@ -42,13 +42,16 @@ int main(int argc, char const *argv[])
     if (argc == 2)
         root_file_path = (char *)argv[1];
 
+    std::string writer_path = root_file_path + "../output.txt";
+    std::string vmm_path = root_file_path + "../vmm.txt";
+
     try
     {
         // Initialize utilities
         parser = new Parser(root_file_path);
         timer = new Timer<std::chrono::milliseconds>(1);
         timer->startTimer();
-        writer = new Writer(root_file_path + "../output.txt", timer);
+        writer = new Writer(writer_path, timer);
         cmdBuffer = new CommandBuffer();
 
         // Parse from config file
@@ -60,7 +63,7 @@ int main(int argc, char const *argv[])
         // manager
         vmem_manager = new vmm::vmm_thread(
             number_of_pages,
-            root_file_path + "../vmem.txt", 
+            vmm_path, 
             cmdBuffer,
             timer, 
             writer
@@ -79,8 +82,8 @@ int main(int argc, char const *argv[])
     }
     catch(const std::exception& e)
     {
-        deinitialize();
         std::cerr << e.what() << '\n';
+        deinitialize();
         return EXIT_FAILURE;
     }
     

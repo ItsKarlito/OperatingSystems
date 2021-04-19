@@ -4,6 +4,7 @@
 #include <mutex>
 #include <iostream>
 #include <fstream>
+#include <exception>
 #include "timer.hpp"
 
 class Writer
@@ -19,9 +20,9 @@ public:
     // throw an exception if path can't be oppened
     Writer(std::string path, Timer<std::chrono::milliseconds>* timer): timer(timer)
     {
-        this->outputFile.open(path);
+        outputFile.open(path);
         if (!this->outputFile.is_open()) 
-            throw "ERROR: Could not open output file";
+            throw std::runtime_error("ERROR: Could not open output file");
     }
 
     // Writes string in both log file and cout
@@ -31,8 +32,11 @@ public:
         string =
             std::string("Clock: ") + std::to_string(timer->getElapsedTime()) + ", " + string + "\n";
         std::cout << string;
-        if (!this->outputFile.is_open()) return;
-        this->outputFile << string;
+        if (this->outputFile.is_open())
+        {
+            this->outputFile << string;
+            this->outputFile.flush();
+        }
     }
 
     // Destructor. Closes files
