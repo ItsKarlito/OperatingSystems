@@ -34,8 +34,8 @@ That's it!, you can now build the project like usual. You'll find an executable 
 - [x] Writer class
 - [x] Context switching class
 
-## TODO: virtual_memory_manager
-### Memory Manager (Jose)
+## ~~TODO: virtual_memory_manager~~
+### ~~Memory Manager (Jose)~~
 - Needs to have a middle-man buffer protected by mutexes to allow for multiprocess usage
 - Needs to have a thread-safe API:
     - store: Store a memory address into either memory. If there's no more space, it goes to disk
@@ -45,7 +45,7 @@ That's it!, you can now build the project like usual. You'll find an executable 
         - If id is in disk, swap page from disk with page from memory that has the smallest "last_access" value. If there's a free page in memory, dont worry about swapping and just put it in there
         - If id doesn't exist, return -1
 
-### Process Manager (Yevhen & Karl)
+### ~~Process Manager (Yevhen & Karl)~~
 - Implement a FIFO scheduler
 - If a process comes in during excecution, and no cores are available, move that process to a waiting queue
 - Don't switch to another process until current one is done excecuting
@@ -54,4 +54,4 @@ That's it!, you can now build the project like usual. You'll find an executable 
 - Processes must pick a random amount of time that it's going to wait for, and once the timer runs out, pick the next available command from command buffer (which is a mutext protected circular filo queue)
 
 ### ~~Writer (Karl)~~
-- ~~Writer object that writes to output file~~
+- Writer object that writes to output file
